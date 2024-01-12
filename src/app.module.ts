@@ -4,9 +4,17 @@ import { AppService } from './app.service';
 import { MemberModule } from './modules/member/member.module';
 import { GuildModule } from './modules/guild/guild.module';
 import { MysqlModule } from './mysql/mysql.module';
+import { ConfigModule } from '@nestjs/config';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
-  imports: [MemberModule, GuildModule, MysqlModule],
+  imports: [
+    ConfigModule.forRoot(),
+    MemberModule,
+    GuildModule,
+    MysqlModule,
+    AuthModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

@@ -33,8 +33,7 @@ export class CommonCode {
 }
 
 export const CODE_CONSTANT = {
-  // 4XX
-  NO_REQUIRED_FIELD: new CommonCode(
+  NO_REQUIRED_DATA: new CommonCode(
     HttpStatus.BAD_REQUEST,
     'COM001',
     '필수 정보가 없습니다.',
@@ -45,40 +44,12 @@ export const CODE_CONSTANT = {
     '없는 데이터입니다.',
   ),
 
-  // 코드 관련 에러
-  WRONG_CODE_DEPTH: new CommonCode(
+  EXIST_DATA: new CommonCode(
     HttpStatus.BAD_REQUEST,
-    'CDE001',
-    '잘못된 코드 단계입니다.',
+    'COM001',
+    '존재하는 데이터입니다',
   ),
 
-  // 관리자 관련 에러
-  ID_NOT_PRESENT: new CommonCode(
-    HttpStatus.BAD_REQUEST,
-    'ADM001',
-    '없는 ID 입니다.',
-  ),
-  WRONG_AUTH_INFO: new CommonCode(
-    HttpStatus.BAD_REQUEST,
-    'ADM002',
-    '잘못된 인증 정보 입니다.',
-  ),
-
-  // 파일 관련 에러
-  UNSUPPORTED_FILE_TYPE: new CommonCode(
-    HttpStatus.BAD_REQUEST,
-    'FLE001',
-    '잘못된 파일 형식입니다.',
-  ),
-
-  // 폴더 관련 에러
-  DIRECTORY_ALREADY_EXISTS: new CommonCode(
-    HttpStatus.BAD_REQUEST,
-    'DIR001',
-    '이미 있는 폴더입니다.',
-  ),
-
-  //5XX
   INTERNAL_SERVER_ERROR: new CommonCode(
     HttpStatus.INTERNAL_SERVER_ERROR,
     'ERR5001',

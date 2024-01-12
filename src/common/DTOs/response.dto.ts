@@ -6,13 +6,9 @@ export class ResponseDTO<T> {
   constructor() {}
 
   isSuccess: BooleanType;
-
   code: string;
-
   message: string;
-
   count: number;
-
   data: T;
 
   setFailed(code: CommonCode): void {

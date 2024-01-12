@@ -4,6 +4,7 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Timestamp,
+  Unique,
   UpdateDateColumn,
 } from 'typeorm';
 
