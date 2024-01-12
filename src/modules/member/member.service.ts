@@ -26,16 +26,12 @@ export class MemberService {
     const saltRound = 10;
     const salt = await bcrypt.genSalt(saltRound);
     const hashedPassword = await bcrypt.hash(memberDTO.memberPw, salt);
-    // console.log(memberDTO);
-
     const existMemberData = await this.memberRepository
       .createQueryBuilder('member')
       .where('memberId = :id', {
         id: memberDTO.memberId,
       })
       .getOne();
-
-    // console.log(existMemberData);
 
     if (existMemberData) {
       throw new HttpException(CODE_CONSTANT.EXIST_DATA, HttpStatus.BAD_REQUEST);
@@ -92,5 +88,67 @@ export class MemberService {
     if (hashedPassword === memberEntity.memberPw) {
       return this.memberMapper.toDTO(memberEntity);
     }
+  }
+
+  /**
+   * Member 업데이트
+   * @param memberDTO
+   * @returns
+   */
+  async updateMember(memberDTO: MemberDTO): Promise<MemberDTO> {
+    const memberEntity: Member = await this.memberRepository
+      .createQueryBuilder('member')
+      .where('memberId = :id', {
+        id: memberDTO.memberId,
+      })
+      .getOne();
+
+    if (!CommonUtil.isValid(memberEntity)) {
+      throw new HttpException(CODE_CONSTANT.NO_DATA, HttpStatus.BAD_REQUEST);
+    }
+
+    if (CommonUtil.isValid(memberDTO.memberName)) {
+      memberEntity.memberName = memberDTO.memberName;
+    }
+    if (CommonUtil.isValid(memberDTO.memberName)) {
+      memberEntity.memberPhone = memberDTO.memberPhone;
+    }
+    if (CommonUtil.isValid(memberDTO.memberName)) {
+      memberEntity.memberBirthDay = memberDTO.memberBirthDay;
+    }
+    if (CommonUtil.isValid(memberDTO.memberName)) {
+      memberEntity.memberGuild = memberDTO.memberGuild;
+    }
+    if (CommonUtil.isValid(memberDTO.memberPw)) {
+      const saltRound = 10;
+      const salt = await bcrypt.genSalt(saltRound);
+      const hashedPassword = await bcrypt.hash(memberDTO.memberPw, salt);
+      memberEntity.memberPw = hashedPassword;
+    }
+
+    return this.memberMapper.toDTO(
+      await this.memberRepository.save(memberEntity),
+    );
+  }
+
+  /**
+   * Member 삭제
+   * @param id
+   * @returns
+   */
+  async deleteMember(id: string): Promise<MemberDTO> {
+    const memberEntity: Member = await this.memberRepository
+      .createQueryBuilder('member')
+      .where('memberId = :id', {
+        id: id,
+      })
+      .getOne();
+
+    if (!CommonUtil.isValid(memberEntity)) {
+      throw new HttpException(CODE_CONSTANT.NO_DATA, HttpStatus.BAD_REQUEST);
+    }
+
+    const removeData = await this.memberRepository.remove(memberEntity);
+    return this.memberMapper.toDTO(removeData);
   }
 }

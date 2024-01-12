@@ -2,13 +2,14 @@ import {
   Body,
   Controller,
   Get,
-  HttpStatus,
+  Patch,
   Logger,
   Post,
   Query,
   Req,
   Res,
   UseGuards,
+  Delete,
 } from '@nestjs/common';
 import { MemberService } from './member.service';
 import { MemberDTO } from './DTOs/member.dto';
@@ -30,9 +31,7 @@ export class MemberController {
    * @returns
    */
   @Post()
-  async createMember(
-    @Body() memberDTO: MemberDTO,
-  ): Promise<ResponseDTO<MemberDTO>> {
+  async create(@Body() memberDTO: MemberDTO): Promise<ResponseDTO<MemberDTO>> {
     this.logger.log(`Create Member : ${memberDTO}`);
     return ResponseUtil.makeSuccessResponse(
       await this.memberService.createMember(memberDTO),
@@ -46,13 +45,38 @@ export class MemberController {
    * @returns
    */
   @Get('/login')
-  async loginMember(
+  async login(
     @Query('id') id: string,
     @Query('pw') pw: string,
   ): Promise<ResponseDTO<MemberDTO>> {
     this.logger.log(`Login Member ID:${id} PW:${pw}`);
     return ResponseUtil.makeSuccessResponse(
       await this.memberService.loginMember(id, pw),
+    );
+  }
+
+  /**
+   * Member 업데이트
+   * @param memberDTO
+   * @returns
+   */
+  @Patch()
+  async update(@Body() memberDTO: MemberDTO): Promise<ResponseDTO<MemberDTO>> {
+    this.logger.log(`Update Member ${memberDTO.memberName}`);
+    return ResponseUtil.makeSuccessResponse(
+      await this.memberService.updateMember(memberDTO),
+    );
+  }
+
+  /**
+   * Member 삭제
+   * @param id
+   * @returns
+   */
+  @Delete()
+  async remove(@Query('id') id: string): Promise<ResponseDTO<MemberDTO>> {
+    return ResponseUtil.makeSuccessResponse(
+      await this.memberService.deleteMember(id),
     );
   }
 
