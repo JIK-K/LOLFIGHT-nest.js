@@ -9,7 +9,6 @@ import { ResponseDTO } from 'src/common/DTOs/response.dto';
 import { Builder } from 'builder-pattern';
 import { CommonUtil } from 'src/utils/common.util';
 import { CODE_CONSTANT } from 'src/common/constants/common-code.constant';
-import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class MemberService {

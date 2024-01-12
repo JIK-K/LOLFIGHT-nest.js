@@ -14,22 +14,18 @@ import { MemberService } from './member.service';
 import { MemberDTO } from './DTOs/member.dto';
 import { ResponseDTO } from 'src/common/DTOs/response.dto';
 import { ResponseUtil } from 'src/utils/response.util';
-import { AuthService } from '../auth/auth.service';
 import { CommonUtil } from 'src/utils/common.util';
 import { Response } from 'express';
 import { AuthGuard } from '@nestjs/passport';
 
 @Controller('member')
 export class MemberController {
-  constructor(
-    private memberService: MemberService,
-    private authService: AuthService,
-  ) {}
+  constructor(private memberService: MemberService) {}
 
   private logger: Logger = new Logger();
 
   /**
-   * Member생성
+   * Member 생성
    * @param memberDTO
    * @returns
    */
@@ -43,6 +39,12 @@ export class MemberController {
     );
   }
 
+  /**
+   * Member 로그인
+   * @param id
+   * @param pw
+   * @returns
+   */
   @Get('/login')
   async loginMember(
     @Query('id') id: string,

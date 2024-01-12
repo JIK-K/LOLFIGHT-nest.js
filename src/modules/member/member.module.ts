@@ -5,12 +5,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Member } from './entities/member.entity';
 import { MemberMapper } from './mapper/member.mapper';
 import { JwtModule } from '@nestjs/jwt';
-import { AuthService } from '../auth/auth.service';
 
 @Module({
   imports: [JwtModule.register({}), TypeOrmModule.forFeature([Member])],
   controllers: [MemberController],
-  providers: [MemberService, MemberMapper, AuthService],
+  providers: [MemberService, MemberMapper],
   exports: [MemberService, MemberMapper],
 })
 export class MemberModule {}
