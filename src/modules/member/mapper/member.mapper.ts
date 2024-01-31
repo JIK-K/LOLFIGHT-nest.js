@@ -8,15 +8,8 @@ export class MemberMapper {
   constructor() {}
 
   toDTO(memberEntity: Member): MemberDTO {
-    const {
-      id,
-      memberId,
-      memberPw,
-      memberName,
-      memberPhone,
-      memberBirthDay,
-      memberGuild,
-    } = memberEntity;
+    const { id, memberId, memberPw, memberName, memberPhone, memberGuild } =
+      memberEntity;
 
     return Builder<MemberDTO>()
       .id(id)
@@ -24,7 +17,6 @@ export class MemberMapper {
       .memberPw(memberPw)
       .memberName(memberName)
       .memberPhone(memberPhone)
-      .memberBirthDay(memberBirthDay)
       .memberGuild(memberGuild)
       .build();
   }

@@ -5,7 +5,6 @@ import { MemberMapper } from './mapper/member.mapper';
 import { Repository } from 'typeorm';
 import { MemberDTO } from './DTOs/member.dto';
 import * as bcrypt from 'bcrypt';
-import { ResponseDTO } from 'src/common/DTOs/response.dto';
 import { Builder } from 'builder-pattern';
 import { CommonUtil } from 'src/utils/common.util';
 import { CODE_CONSTANT } from 'src/common/constants/common-code.constant';
@@ -28,7 +27,7 @@ export class MemberService {
     const hashedPassword = await bcrypt.hash(memberDTO.memberPw, salt);
     const existMemberData = await this.memberRepository
       .createQueryBuilder('member')
-      .where('memberId = :id', {
+      .where('member_id = :id', {
         id: memberDTO.memberId,
       })
       .getOne();
@@ -43,7 +42,6 @@ export class MemberService {
       .memberPw(hashedPassword)
       .memberName(memberDTO.memberName)
       .memberPhone(memberDTO.memberPhone)
-      .memberBirthDay(memberDTO.memberBirthDay)
       .memberGuild(memberDTO.memberGuild)
       .salt(salt)
       .build();
@@ -75,7 +73,7 @@ export class MemberService {
 
     const memberEntity: Member = await this.memberRepository
       .createQueryBuilder('member')
-      .where('memberId = :id', {
+      .where('member_id = :id', {
         id: id,
       })
       .getOne();
@@ -98,7 +96,7 @@ export class MemberService {
   async updateMember(memberDTO: MemberDTO): Promise<MemberDTO> {
     const memberEntity: Member = await this.memberRepository
       .createQueryBuilder('member')
-      .where('memberId = :id', {
+      .where('member_id = :id', {
         id: memberDTO.memberId,
       })
       .getOne();
@@ -112,9 +110,6 @@ export class MemberService {
     }
     if (CommonUtil.isValid(memberDTO.memberName)) {
       memberEntity.memberPhone = memberDTO.memberPhone;
-    }
-    if (CommonUtil.isValid(memberDTO.memberName)) {
-      memberEntity.memberBirthDay = memberDTO.memberBirthDay;
     }
     if (CommonUtil.isValid(memberDTO.memberName)) {
       memberEntity.memberGuild = memberDTO.memberGuild;
@@ -139,7 +134,7 @@ export class MemberService {
   async deleteMember(id: string): Promise<MemberDTO> {
     const memberEntity: Member = await this.memberRepository
       .createQueryBuilder('member')
-      .where('memberId = :id', {
+      .where('member_id = :id', {
         id: id,
       })
       .getOne();

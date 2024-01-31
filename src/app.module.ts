@@ -5,9 +5,16 @@ import { MemberModule } from './modules/member/member.module';
 import { GuildModule } from './modules/guild/guild.module';
 import { MysqlModule } from './mysql/mysql.module';
 import { ConfigModule } from '@nestjs/config';
+import { MailModule } from './modules/mail/mail.module';
 
 @Module({
-  imports: [ConfigModule.forRoot(), MemberModule, GuildModule, MysqlModule],
+  imports: [
+    ConfigModule.forRoot(),
+    MemberModule,
+    GuildModule,
+    MysqlModule,
+    MailModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
