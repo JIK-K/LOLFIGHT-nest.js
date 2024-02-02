@@ -8,10 +8,12 @@ import * as path from 'path';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Mail } from './entites/mail.entity';
 import { MailMapper } from './mapper/mail.mapper';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
+    ScheduleModule.forRoot(),
     MailerModule.forRootAsync({
       useFactory: () => ({
         transport: {

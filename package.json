@@ -1,5 +1,5 @@
 {
-  "name": "LOLFIGHT-Server",
+  "name": "lolfight-server",
   "version": "0.0.1",
   "description": "",
   "author": "",
@@ -27,7 +27,9 @@
     "@nestjs/jwt": "^10.2.0",
     "@nestjs/passport": "^10.0.3",
     "@nestjs/platform-express": "^10.0.0",
+    "@nestjs/schedule": "^4.0.0",
     "@nestjs/typeorm": "^10.0.1",
+    "@types/cron": "^2.4.0",
     "bcrypt": "^5.1.1",
     "builder-pattern": "^2.2.0",
     "class-validator": "^0.14.1",

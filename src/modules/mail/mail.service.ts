@@ -1,22 +1,60 @@
 import { MailerService } from '@nestjs-modules/mailer';
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Mail } from './entites/mail.entity';
-import { Repository } from 'typeorm';
+import { LessThanOrEqual, Repository } from 'typeorm';
 import { Builder } from 'builder-pattern';
 import { MailDTO } from './DTOs/mail.dto';
 import { MailMapper } from './mapper/mail.mapper';
+import { Cron, CronExpression } from '@nestjs/schedule';
+import { CommonUtil } from 'src/utils/common.util';
+import { CODE_CONSTANT } from 'src/common/constants/common-code.constant';
 
 @Injectable()
 export class MailService {
   constructor(
     private readonly mailerService: MailerService,
     private mailMapper: MailMapper,
-    @InjectRepository(Mail) private memberRepository: Repository<Mail>,
+    @InjectRepository(Mail) private mailRepository: Repository<Mail>,
   ) {}
 
   /**
-   * mail auth
+   * 3분인증 타임
+   */
+  @Cron(CronExpression.EVERY_MINUTE)
+  async updateMailStatus() {
+    const mailsToUpdate = await this.mailRepository
+      .createQueryBuilder('mail')
+      .where('mail_status = :status', { status: 'N' })
+      .andWhere('mail.createdAt <= :date', {
+        date: new Date(Date.now() - 3 * 60 * 1000),
+      })
+      .getMany();
+
+    for (const mail of mailsToUpdate) {
+      mail.mailStatus = 'F';
+    }
+
+    await this.mailRepository.save(mailsToUpdate);
+  }
+
+  /**
+   * 10분 지난 데이터 삭제
+   */
+  @Cron(CronExpression.EVERY_10_MINUTES)
+  async deleteRemainMail() {
+    const mailsToUpdate = await this.mailRepository
+      .createQueryBuilder('mail')
+      .where('mail_status = :status', { status: 'F' })
+      .getMany();
+
+    for (const mail of mailsToUpdate) {
+      await this.mailRepository.remove(mail);
+    }
+  }
+
+  /**
+   * mail send
    * @param mailDTO
    * @returns
    */
@@ -51,7 +89,31 @@ export class MailService {
       .build();
 
     return this.mailMapper.toDTO(
-      await this.memberRepository.save(mailAuthEntity),
+      await this.mailRepository.save(mailAuthEntity),
     );
+  }
+
+  /**
+   * mail auth
+   * @param mailDTO
+   * @returns
+   */
+  async auth(mailDTO: MailDTO) {
+    const mailAuthAccount = await this.mailRepository
+      .createQueryBuilder('mail')
+      .where('mail_addr = :addr', { addr: mailDTO.mailAddr })
+      .getOne();
+
+    if (!CommonUtil.isValid(mailAuthAccount)) {
+      throw new HttpException(CODE_CONSTANT.NO_DATA, HttpStatus.BAD_REQUEST);
+    }
+
+    if (mailAuthAccount.mailCode === mailDTO.mailCode) {
+      mailAuthAccount.mailStatus = 'T';
+      this.mailRepository.save(mailAuthAccount);
+      return true;
+    } else {
+      return false;
+    }
   }
 }
