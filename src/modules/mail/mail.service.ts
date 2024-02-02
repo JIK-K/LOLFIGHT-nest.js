@@ -98,17 +98,17 @@ export class MailService {
    * @param mailDTO
    * @returns
    */
-  async auth(mailDTO: MailDTO) {
+  async auth(mailAddr: string, mailCode: string) {
     const mailAuthAccount = await this.mailRepository
       .createQueryBuilder('mail')
-      .where('mail_addr = :addr', { addr: mailDTO.mailAddr })
+      .where('mail_addr = :addr', { addr: mailAddr })
       .getOne();
 
     if (!CommonUtil.isValid(mailAuthAccount)) {
       throw new HttpException(CODE_CONSTANT.NO_DATA, HttpStatus.BAD_REQUEST);
     }
 
-    if (mailAuthAccount.mailCode === mailDTO.mailCode) {
+    if (mailAuthAccount.mailCode === mailCode) {
       mailAuthAccount.mailStatus = 'T';
       this.mailRepository.save(mailAuthAccount);
       return true;

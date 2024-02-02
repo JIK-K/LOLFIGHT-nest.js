@@ -24,11 +24,10 @@ export class MailController {
 
   @Get('/auth')
   async authMemberMail(
-    @Body() mailDTO: MailDTO,
-  ): Promise<ResponseDTO<boolean>> {
-    this.logger.log(`${mailDTO.mailAddr} : Mail, ${mailDTO.mailCode} : Code`);
-    return ResponseUtil.makeSuccessResponse(
-      await this.mailService.auth(mailDTO),
-    );
+    @Query('mailAddr') mailAddr: string,
+    @Query('mailCode') mailCode: string,
+  ): Promise<boolean> {
+    this.logger.log(`${mailAddr} : Mail, ${mailCode} : Code`);
+    return await this.mailService.auth(mailAddr, mailCode);
   }
 }
