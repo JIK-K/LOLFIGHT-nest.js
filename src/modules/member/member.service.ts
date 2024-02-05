@@ -77,10 +77,9 @@ export class MemberService {
         id: id,
       })
       .getOne();
-
-    if (!CommonUtil.isValid(memberEntity)) {
-      throw new HttpException(CODE_CONSTANT.NO_DATA, HttpStatus.BAD_REQUEST);
-    }
+    // if (!CommonUtil.isValid(memberEntity)) {
+    //   throw new HttpException(CODE_CONSTANT.NO_DATA, HttpStatus.BAD_REQUEST);
+    // }
 
     const hashedPassword = await bcrypt.hash(pw, memberEntity.salt);
     if (hashedPassword === memberEntity.memberPw) {
@@ -108,10 +107,10 @@ export class MemberService {
     if (CommonUtil.isValid(memberDTO.memberName)) {
       memberEntity.memberName = memberDTO.memberName;
     }
-    if (CommonUtil.isValid(memberDTO.memberName)) {
+    if (CommonUtil.isValid(memberDTO.memberPhone)) {
       memberEntity.memberPhone = memberDTO.memberPhone;
     }
-    if (CommonUtil.isValid(memberDTO.memberName)) {
+    if (CommonUtil.isValid(memberDTO.memberGuild)) {
       memberEntity.memberGuild = memberDTO.memberGuild;
     }
     if (CommonUtil.isValid(memberDTO.memberPw)) {
@@ -119,6 +118,7 @@ export class MemberService {
       const salt = await bcrypt.genSalt(saltRound);
       const hashedPassword = await bcrypt.hash(memberDTO.memberPw, salt);
       memberEntity.memberPw = hashedPassword;
+      memberEntity.salt = salt;
     }
 
     return this.memberMapper.toDTO(

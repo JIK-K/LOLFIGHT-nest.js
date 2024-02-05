@@ -63,6 +63,15 @@ export class MailService {
     const authLength = 6;
     let code = '';
 
+    const existingMail = await this.mailRepository.findOne({
+      where: { mailAddr: mailDTO.mailAddr },
+    });
+
+    if (existingMail) {
+      // 이미 이메일이 존재하면 해당 행 삭제
+      await this.mailRepository.remove(existingMail);
+    }
+
     for (let i = 0; i < authLength; i++) {
       const randomIndex = Math.floor(Math.random() * characters.length);
       code += characters.charAt(randomIndex);

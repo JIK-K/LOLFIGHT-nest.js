@@ -27,7 +27,7 @@ export class MailController {
     @Query('mailAddr') mailAddr: string,
     @Query('mailCode') mailCode: string,
   ): Promise<boolean> {
-    this.logger.log(`${mailAddr} : Mail, ${mailCode} : Code`);
+    this.logger.log(`Mail: ${mailAddr} , Code: ${mailCode}`);
     return await this.mailService.auth(mailAddr, mailCode);
   }
 }
