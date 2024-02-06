@@ -9,6 +9,7 @@ import { MailMapper } from './mapper/mail.mapper';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { CommonUtil } from 'src/utils/common.util';
 import { CODE_CONSTANT } from 'src/common/constants/common-code.constant';
+import { Member } from '../member/entities/member.entity';
 
 @Injectable()
 export class MailService {

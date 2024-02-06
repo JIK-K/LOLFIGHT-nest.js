@@ -77,9 +77,10 @@ export class MemberService {
         id: id,
       })
       .getOne();
-    // if (!CommonUtil.isValid(memberEntity)) {
-    //   throw new HttpException(CODE_CONSTANT.NO_DATA, HttpStatus.BAD_REQUEST);
-    // }
+
+    if (!CommonUtil.isValid(memberEntity)) {
+      throw new HttpException(CODE_CONSTANT.NO_DATA, HttpStatus.BAD_REQUEST);
+    }
 
     const hashedPassword = await bcrypt.hash(pw, memberEntity.salt);
     if (hashedPassword === memberEntity.memberPw) {
@@ -124,6 +125,26 @@ export class MemberService {
     return this.memberMapper.toDTO(
       await this.memberRepository.save(memberEntity),
     );
+  }
+
+  /**
+   * Member find
+   * @param id
+   * @returns
+   */
+  async findMember(id: string): Promise<MemberDTO> {
+    const memberEntity: Member = await this.memberRepository
+      .createQueryBuilder('member')
+      .where('member_id = :id', {
+        id: id,
+      })
+      .getOne();
+
+    if (!CommonUtil.isValid(memberEntity)) {
+      throw new HttpException(CODE_CONSTANT.NO_DATA, HttpStatus.BAD_REQUEST);
+    }
+
+    return await this.memberMapper.toDTO(memberEntity);
   }
 
   /**
