@@ -55,6 +55,11 @@ export class MemberController {
     );
   }
 
+  /**
+   * Member id로 찾기
+   * @param id
+   * @returns
+   */
   @Get('/find')
   async find(@Query('id') id: string): Promise<ResponseDTO<MemberDTO>> {
     this.logger.log(`Find Member Id : ${id}`);
