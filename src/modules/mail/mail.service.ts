@@ -118,7 +118,10 @@ export class MailService {
       throw new HttpException(CODE_CONSTANT.NO_DATA, HttpStatus.BAD_REQUEST);
     }
 
-    if (mailAuthAccount.mailCode === mailCode) {
+    if (
+      mailAuthAccount.mailCode === mailCode &&
+      mailAuthAccount.mailStatus !== 'F'
+    ) {
       mailAuthAccount.mailStatus = 'T';
       this.mailRepository.save(mailAuthAccount);
       return true;
