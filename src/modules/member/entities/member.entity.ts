@@ -1,5 +1,12 @@
 import { BaseEntity } from 'src/base/base.entity';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Guild } from 'src/modules/guild/entities/guild.entity';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity({
   name: 'member',
@@ -23,6 +30,9 @@ export class Member extends BaseEntity {
   @Column({ name: 'member_phone', nullable: true })
   memberPhone: string;
 
+  // @ManyToOne(() => Guild)
+  // @JoinColumn({ name: 'member_guild' })
+  // memberGuild: Guild;
   @Column({ name: 'member_guild', nullable: true })
   memberGuild: string;
 
