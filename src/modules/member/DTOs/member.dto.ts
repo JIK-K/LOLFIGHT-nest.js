@@ -1,5 +1,6 @@
 import { IsOptional } from 'class-validator';
 import { BaseDTO } from 'src/base/base.dto';
+import { Guild } from 'src/modules/guild/entities/guild.entity';
 
 export class MemberDTO extends BaseDTO {
   @IsOptional()
@@ -18,5 +19,5 @@ export class MemberDTO extends BaseDTO {
   memberPhone: string;
 
   @IsOptional()
-  memberGuild: string;
+  memberGuild: Guild;
 }

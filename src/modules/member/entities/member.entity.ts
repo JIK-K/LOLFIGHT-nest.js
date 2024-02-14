@@ -30,11 +30,9 @@ export class Member extends BaseEntity {
   @Column({ name: 'member_phone', nullable: true })
   memberPhone: string;
 
-  // @ManyToOne(() => Guild)
-  // @JoinColumn({ name: 'member_guild' })
-  // memberGuild: Guild;
-  @Column({ name: 'member_guild', nullable: true })
-  memberGuild: string;
+  @ManyToOne(() => Guild, (guild) => guild.members, { onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'member_guild' })
+  memberGuild: Guild;
 
   @Column()
   salt: string;

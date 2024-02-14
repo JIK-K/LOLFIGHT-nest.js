@@ -1,5 +1,6 @@
 import { BaseEntity } from 'src/base/base.entity';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Member } from 'src/modules/member/entities/member.entity';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity({
   name: 'guild',
@@ -28,4 +29,7 @@ export class Guild extends BaseEntity {
 
   @Column({ name: 'guild_icon', nullable: true })
   guildIcon: string;
+
+  @OneToMany(() => Member, (member) => member.memberGuild)
+  members: Member[];
 }

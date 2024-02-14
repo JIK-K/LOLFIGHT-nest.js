@@ -55,4 +55,10 @@ export const CODE_CONSTANT = {
     'ERR5001',
     '서버에서 오류가 발생했습니다.',
   ),
+
+  UNSUPPORTED_FILE_TYPE: new CommonCode(
+    HttpStatus.BAD_REQUEST,
+    'FLE001',
+    '잘못된 파일 형식입니다.',
+  ),
 };

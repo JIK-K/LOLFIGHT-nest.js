@@ -135,6 +135,7 @@ export class MemberService {
   async findMember(id: string): Promise<MemberDTO> {
     const memberEntity: Member = await this.memberRepository
       .createQueryBuilder('member')
+      .leftJoinAndSelect('member.memberGuild', 'guild')
       .where('member_id = :id', {
         id: id,
       })
