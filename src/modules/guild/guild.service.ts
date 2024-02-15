@@ -52,28 +52,24 @@ export class GuildService {
     if (file) {
       const fileName = `${guildDTO.guildName}.${file.originalname
         .split('.')
-        .pop()}`; // 파일 이름 설정
-      const filePath = join(__dirname, '../../..', 'public/guild', fileName); // 파일 경로 설정
+        .pop()}`;
+      const filePath = join(__dirname, '../../..', 'public/guild', fileName);
       if (existsSync(filePath)) {
-        // 파일이 이미 존재하는 경우 삭제
         rmSync(filePath);
       }
 
-      // 파일 스트림 생성
       const readStream = createReadStream(file.path);
       const writeStream = createWriteStream(filePath);
 
-      // 파일 복사
       readStream.pipe(writeStream);
-
-      // 파일 복사 완료 후에는 파일 스트림을 닫습니다.
       writeStream.on('finish', () => {
-        // 파일 삭제
         unlinkSync(file.path);
-
-        guildIconPath = `public/guild/${fileName}`; // 파일의 경로를 guildIconPath에 저장
+        guildIconPath = `public/guild/${fileName}`;
       });
+
+      guildIconPath = `public/guild/${fileName}`;
     }
+    console.log(guildIconPath);
 
     const guildEntity: Guild = Builder<Guild>()
       .id(guildDTO.id)
@@ -82,12 +78,14 @@ export class GuildService {
       .guildMembers(guildDTO.guildMembers)
       .guildDescription(guildDTO.guildDescription)
       .guildTier(guildDTO.guildTier)
-      .guildIcon(guildDTO.guildIcon)
+      .guildIcon(guildIconPath)
       .build();
 
     const createdGuild = this.guildMapper.toDTO(
       await this.guildRepository.save(guildEntity),
     );
+
+    console.log(createdGuild);
 
     const guildMasterMember = await this.memberRepository.findOne({
       where: { memberName: guildDTO.guildMaster },

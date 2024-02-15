@@ -6,9 +6,14 @@ import { GuildModule } from './modules/guild/guild.module';
 import { MysqlModule } from './mysql/mysql.module';
 import { ConfigModule } from '@nestjs/config';
 import { MailModule } from './modules/mail/mail.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'public'),
+    }),
     ConfigModule.forRoot(),
     MemberModule,
     GuildModule,
