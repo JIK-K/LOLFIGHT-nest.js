@@ -20,6 +20,12 @@ export class GuildController {
 
   private logger: Logger = new Logger();
 
+  /**
+   * Guild 생성
+   * @param file
+   * @param guildDTO
+   * @returns
+   */
   @Post()
   @UseInterceptors(FileInterceptor('guildImage', multerConfig))
   @Bind(UploadedFile())
@@ -27,7 +33,7 @@ export class GuildController {
     file: Express.Multer.File,
     @Body() guildDTO: GuildDTO,
   ): Promise<ResponseDTO<GuildDTO>> {
-    // this.logger.log(`Create Guild : ${guildDTO}`);
+    this.logger.log(`Create Guild : ${guildDTO}`);
     return ResponseUtil.makeSuccessResponse(
       await this.guildService.createGuild(guildDTO, file),
     );
