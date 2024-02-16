@@ -5,7 +5,9 @@ import { Builder } from 'builder-pattern';
 
 @Injectable()
 export class MemberMapper {
-  constructor() {}
+  constructor() {
+    // empty
+  }
 
   toDTO(memberEntity: Member): MemberDTO {
     const { id, memberId, memberPw, memberName, memberPhone, memberGuild } =

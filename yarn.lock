@@ -1118,9 +1118,9 @@
     "@types/express" "*"
 
 "@types/node@*", "@types/node@^20.3.1":
-  version "20.11.17"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-20.11.17.tgz#cdd642d0e62ef3a861f88ddbc2b61e32578a9292"
-  integrity sha512-QmgQZGWu1Yw9TDyAP9ZzpFJKynYNeOvwMJmaxABfieQoVoiVOS6MN1WSpqpRcbeA5+RW82kraAVxCCJg+780Qw==
+  version "20.11.19"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-20.11.19.tgz#b466de054e9cb5b3831bee38938de64ac7f81195"
+  integrity sha512-7xMnVEcZFu0DikYjWOlRq7NTPETrm7teqUT2WkQjrTIkEgUyyGdWsj/Zg8bEJt5TNklzbPD1X3fqfsHw3SpapQ==
   dependencies:
     undici-types "~5.26.4"
 
@@ -2597,7 +2597,7 @@ ecdsa-sig-formatter@1.0.11:
   dependencies:
     safe-buffer "^5.0.1"
 
-editorconfig@^1.0.3:
+editorconfig@^1.0.4:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/editorconfig/-/editorconfig-1.0.4.tgz#040c9a8e9a6c5288388b87c2db07028aa89f53a3"
   integrity sha512-L9Qe08KWTlqYMVvMcTIvMAdl1cDUubzRNYL+WfA4bLDMHe4nemKkpmYzkznE1FwLKu0EEmy6obgQKzMJrg4x9Q==
@@ -2620,9 +2620,9 @@ ejs@^3.1.9:
     jake "^10.8.5"
 
 electron-to-chromium@^1.4.668:
-  version "1.4.670"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.670.tgz#0fc5ac92ada8371e898ea72d577ffc888167a017"
-  integrity sha512-hcijYOWjOtjKrKPtNA6tuLlA/bTLO3heFG8pQA6mLpq7dRydSWicXova5lyxDzp1iVJaYhK7J2OQlGE52KYn7A==
+  version "1.4.672"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.672.tgz#f8ce803b43898b7e91dcfcf70d6fd656b11a645d"
+  integrity sha512-YYCy+goe3UqZqa3MOQCI5Mx/6HdBLzXL/mkbGCEWL3sP3Z1BP9zqAzeD3YEmLZlespYGFtyM8tRp5i2vfaUGCA==
 
 emittery@^0.13.1:
   version "0.13.1"
@@ -4189,14 +4189,20 @@ jest@^29.5.0:
     jest-cli "^29.7.0"
 
 js-beautify@^1.6.14:
-  version "1.14.11"
-  resolved "https://registry.yarnpkg.com/js-beautify/-/js-beautify-1.14.11.tgz#57b17e009549ac845bdc58eddf8e1862e311314e"
-  integrity sha512-rPogWqAfoYh1Ryqqh2agUpVfbxAhbjuN1SmU86dskQUKouRiggUTCO4+2ym9UPXllc2WAp0J+T5qxn7Um3lCdw==
+  version "1.15.0"
+  resolved "https://registry.yarnpkg.com/js-beautify/-/js-beautify-1.15.0.tgz#0d39df4b307dcc5ef44bb21c925a8efc2c16cc7e"
+  integrity sha512-U1f+LPtn13M0OS0ChNMpM7wA7J47ECqwIcvayrZu+o0FLLt9FckoT6XOO1grhBS2vZjSt79K+vkUuP0o+BIdsA==
   dependencies:
     config-chain "^1.1.13"
-    editorconfig "^1.0.3"
+    editorconfig "^1.0.4"
     glob "^10.3.3"
+    js-cookie "^3.0.5"
     nopt "^7.2.0"
+
+js-cookie@^3.0.5:
+  version "3.0.5"
+  resolved "https://registry.yarnpkg.com/js-cookie/-/js-cookie-3.0.5.tgz#0b7e2fd0c01552c58ba86e0841f94dc2557dcdbc"
+  integrity sha512-cEiJEAEoIbWfCZYKWhVwFuvPX1gETRYPw6LlaTKoxD3s2AkXzkCjnp6h0V77ozyqj0jakteJ4YqDJT830+lVGw==
 
 js-stringify@^1.0.2:
   version "1.0.2"
@@ -4385,9 +4391,9 @@ libmime@5.2.1:
     libqp "2.0.1"
 
 libphonenumber-js@^1.10.53:
-  version "1.10.55"
-  resolved "https://registry.yarnpkg.com/libphonenumber-js/-/libphonenumber-js-1.10.55.tgz#ec864e369bf7babde02021d06b5f2433d7e9c78e"
-  integrity sha512-MrTg2JFLscgmTY6/oT9vopYETlgUls/FU6OaeeamGwk4LFxjIgOUML/ZSZICgR0LPYXaonVJo40lzMvaaTJlQA==
+  version "1.10.56"
+  resolved "https://registry.yarnpkg.com/libphonenumber-js/-/libphonenumber-js-1.10.56.tgz#96d9d64c31888ec363ed99fbf77cf4ad12117aa4"
+  integrity sha512-d0GdKshNnyfl5gM7kZ9rXjGiAbxT/zCXp0k+EAzh8H4zrb2R7GXtMCrULrX7UQxtfx6CLy/vz/lomvW79FAFdA==
 
 libqp@2.0.1:
   version "2.0.1"
@@ -6398,9 +6404,9 @@ terser-webpack-plugin@^5.3.10:
     terser "^5.26.0"
 
 terser@^5.26.0:
-  version "5.27.0"
-  resolved "https://registry.yarnpkg.com/terser/-/terser-5.27.0.tgz#70108689d9ab25fef61c4e93e808e9fd092bf20c"
-  integrity sha512-bi1HRwVRskAjheeYl291n3JC4GgO/Ty4z1nVs5AAsmonJulGxpSektecnNedrwK9C7vpvVtcX3cw00VSLt7U2A==
+  version "5.27.1"
+  resolved "https://registry.yarnpkg.com/terser/-/terser-5.27.1.tgz#b0092975ea1b379d166088a1a57e32f0839d84a2"
+  integrity sha512-29wAr6UU/oQpnTw5HoadwjUZnFQXGdOfj0LjZ4sVxzqwHh/QVkvr7m8y9WoR4iN3FRitVduTc6KdjcW38Npsug==
   dependencies:
     "@jridgewell/source-map" "^0.3.3"
     acorn "^8.8.2"

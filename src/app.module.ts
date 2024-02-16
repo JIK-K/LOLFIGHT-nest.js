@@ -8,6 +8,8 @@ import { ConfigModule } from '@nestjs/config';
 import { MailModule } from './modules/mail/mail.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { BoardModule } from './modules/board/board.module';
+import { PostModule } from './modules/post/post.module';
 
 @Module({
   imports: [
@@ -19,6 +21,8 @@ import { join } from 'path';
     GuildModule,
     MysqlModule,
     MailModule,
+    BoardModule,
+    PostModule,
   ],
   controllers: [AppController],
   providers: [AppService],
