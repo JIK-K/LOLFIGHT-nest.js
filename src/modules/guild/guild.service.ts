@@ -69,7 +69,6 @@ export class GuildService {
 
       guildIconPath = `public/guild/${fileName}`;
     }
-    console.log(guildIconPath);
 
     const guildEntity: Guild = Builder<Guild>()
       .id(guildDTO.id)
@@ -84,8 +83,6 @@ export class GuildService {
     const createdGuild = this.guildMapper.toDTO(
       await this.guildRepository.save(guildEntity),
     );
-
-    console.log(createdGuild);
 
     const guildMasterMember = await this.memberRepository.findOne({
       where: { memberName: guildDTO.guildMaster },

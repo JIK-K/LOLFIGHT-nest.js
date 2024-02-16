@@ -30,7 +30,12 @@ export class MemberService {
       .where('member_id = :id', {
         id: memberDTO.memberId,
       })
+      .orWhere('member_name = :name', {
+        name: memberDTO.memberName,
+      })
       .getOne();
+
+    console.log(existMemberData);
 
     if (existMemberData) {
       throw new HttpException(CODE_CONSTANT.EXIST_DATA, HttpStatus.BAD_REQUEST);
@@ -41,7 +46,6 @@ export class MemberService {
       .memberId(memberDTO.memberId)
       .memberPw(hashedPassword)
       .memberName(memberDTO.memberName)
-      .memberPhone(memberDTO.memberPhone)
       .memberGuild(memberDTO.memberGuild)
       .salt(salt)
       .build();
@@ -107,9 +111,6 @@ export class MemberService {
 
     if (CommonUtil.isValid(memberDTO.memberName)) {
       memberEntity.memberName = memberDTO.memberName;
-    }
-    if (CommonUtil.isValid(memberDTO.memberPhone)) {
-      memberEntity.memberPhone = memberDTO.memberPhone;
     }
     if (CommonUtil.isValid(memberDTO.memberGuild)) {
       memberEntity.memberGuild = memberDTO.memberGuild;
