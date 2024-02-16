@@ -1,6 +1,6 @@
-import { BaseEntity, Entity, OneToMany } from 'typeorm';
-import { Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, OneToMany, Column, PrimaryGeneratedColumn } from 'typeorm';
 import { Post } from '../../post/entities/post.entity';
+import { BaseEntity } from 'src/base/base.entity';
 
 @Entity({
   name: 'board',
@@ -13,7 +13,7 @@ export class Board extends BaseEntity {
   id: string;
 
   @Column({ name: 'board_type' })
-  postType: string;
+  boardType: string;
 
   @OneToMany(() => Post, (post) => post.board)
   posts: Post[];

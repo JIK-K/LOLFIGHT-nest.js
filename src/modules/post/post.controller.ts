@@ -19,7 +19,9 @@ export class PostController {
    */
   @Post()
   async create(@Body() postDTO: PostDTO): Promise<ResponseDTO<PostDTO>> {
+    this.logger.log('postDTO', postDTO);
     this.logger.log(`Create Post : ${postDTO}`);
+
     return ResponseUtil.makeSuccessResponse(
       await this.postService.createPost(postDTO),
     );

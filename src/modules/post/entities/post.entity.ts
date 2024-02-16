@@ -20,7 +20,7 @@ export class Post extends BaseEntity {
   id: number;
 
   @PrimaryColumn()
-  boardId: number;
+  boardId: string;
 
   @Column({ name: 'post_title' })
   postTitle: string;
