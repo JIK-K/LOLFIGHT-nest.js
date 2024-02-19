@@ -33,7 +33,9 @@ export class GuildController {
     file: Express.Multer.File,
     @Body() guildDTO: GuildDTO,
   ): Promise<ResponseDTO<GuildDTO>> {
-    this.logger.log(`Create Guild : ${guildDTO}`);
+    this.logger.log(
+      `Create Guild : [${guildDTO.guildName}] Guild Master : [${guildDTO.guildMaster}]`,
+    );
     return ResponseUtil.makeSuccessResponse(
       await this.guildService.createGuild(guildDTO, file),
     );
