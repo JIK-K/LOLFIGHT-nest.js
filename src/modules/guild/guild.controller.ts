@@ -46,11 +46,23 @@ export class GuildController {
   }
 
   /**
+   * Guild 길드 리스트
+   * @returns
+   */
+  @Get('/list')
+  async guildList(): Promise<ResponseDTO<GuildDTO[]>> {
+    this.logger.log(`Get Guild List`);
+    return ResponseUtil.makeSuccessResponse(
+      await this.guildService.getGuildList(),
+    );
+  }
+
+  /**
    * guild 길드원 리스트
    * @param guildName
    * @returns
    */
-  @Get('guildMember')
+  @Get('/guildMember')
   async findMemberList(
     @Query('name') guildName: string,
   ): Promise<ResponseDTO<MemberDTO[]>> {
@@ -61,7 +73,7 @@ export class GuildController {
   }
 
   /**
-   * guild 해체
+   * Guild 해체
    * @param guildName
    * @returns
    */

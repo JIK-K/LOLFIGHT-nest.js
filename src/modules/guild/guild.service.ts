@@ -100,6 +100,18 @@ export class GuildService {
   }
 
   /**
+   * Guild 길드 리스트
+   * @returns
+   */
+  async getGuildList(): Promise<GuildDTO[]> {
+    const guildEntites: Guild[] = await this.guildRepository
+      .createQueryBuilder('guild')
+      .getMany();
+
+    return this.guildMapper.toDTOList(guildEntites);
+  }
+
+  /**
    * guild 길드원 리스트
    * @param guildName
    * @returns
