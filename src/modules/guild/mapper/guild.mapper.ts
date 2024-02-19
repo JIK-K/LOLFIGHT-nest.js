@@ -5,7 +5,9 @@ import { GuildDTO } from '../DTOs/guild.dto';
 
 @Injectable()
 export class GuildMapper {
-  constructor() {}
+  constructor() {
+    // empty
+  }
 
   toDTO(guildEntity: Guild): GuildDTO {
     const {
