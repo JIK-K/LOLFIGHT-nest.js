@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Guild } from './entities/guild.entity';
 import { GuildMapper } from './mapper/guild.mapper';
 import { Member } from '../member/entities/member.entity';
+import { MemberMapper } from '../member/mapper/member.mapper';
 
 @Module({
   imports: [
@@ -12,7 +13,7 @@ import { Member } from '../member/entities/member.entity';
     TypeOrmModule.forFeature([Member]),
   ],
   controllers: [GuildController],
-  providers: [GuildService, GuildMapper],
-  exports: [GuildService, GuildMapper],
+  providers: [GuildService, GuildMapper, MemberMapper],
+  exports: [GuildService, GuildMapper, MemberMapper],
 })
 export class GuildModule {}
