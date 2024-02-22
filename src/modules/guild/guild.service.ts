@@ -20,6 +20,7 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 import { MemberDTO } from '../member/DTOs/member.dto';
 import { MemberMapper } from '../member/mapper/member.mapper';
+import { GuildRecord } from './entities/guild_record.entity';
 
 @Injectable()
 export class GuildService {
@@ -29,6 +30,8 @@ export class GuildService {
     @InjectRepository(Member)
     private readonly memberRepository: Repository<Member>,
     private memberMapper: MemberMapper,
+    @InjectRepository(GuildRecord)
+    private guildRecordRepository: Repository<GuildRecord>,
   ) {}
 
   /**
@@ -75,6 +78,10 @@ export class GuildService {
       guildIconPath = `public/guild/${fileName}`;
     }
 
+    const guildRecordEntity: GuildRecord = Builder<GuildRecord>().build();
+
+    await this.guildRecordRepository.save(guildRecordEntity);
+
     const guildEntity: Guild = Builder<Guild>()
       .id(guildDTO.id)
       .guildMaster(guildDTO.guildMaster)
@@ -83,6 +90,7 @@ export class GuildService {
       .guildDescription(guildDTO.guildDescription)
       .guildTier(guildDTO.guildTier)
       .guildIcon(guildIconPath)
+      .guildRecord(guildRecordEntity)
       .build();
 
     const createdGuild = this.guildMapper.toDTO(
@@ -106,9 +114,31 @@ export class GuildService {
   async getGuildList(): Promise<GuildDTO[]> {
     const guildEntites: Guild[] = await this.guildRepository
       .createQueryBuilder('guild')
+      .leftJoinAndSelect('guild.guildRecord', 'guildRecord')
       .getMany();
 
     return this.guildMapper.toDTOList(guildEntites);
+  }
+
+  /**
+   * Guild 정보 조회
+   * @param guildName
+   * @returns
+   */
+  async getGuildInfo(guildName: string): Promise<GuildDTO> {
+    const guildEntity: Guild = await this.guildRepository
+      .createQueryBuilder('guild')
+      .leftJoinAndSelect('guild.guildRecord', 'guildRecord')
+      .where('guild_name = :name', {
+        name: guildName,
+      })
+      .getOne();
+
+    if (!CommonUtil.isValid(guildEntity)) {
+      throw new HttpException(CODE_CONSTANT.NO_DATA, HttpStatus.BAD_REQUEST);
+    }
+
+    return await this.guildMapper.toDTO(guildEntity);
   }
 
   /**
@@ -145,12 +175,11 @@ export class GuildService {
   async deleteGuild(guildName: string): Promise<GuildDTO> {
     const guildEntity: Guild = await this.guildRepository
       .createQueryBuilder('guild')
-      .where('guild_name = :name', {
-        name: guildName,
-      })
+      .leftJoinAndSelect('guild.guild_record', 'guild_record')
+      .where('guild.guild_name = :name', { name: guildName })
       .getOne();
 
-    if (!CommonUtil.isValid(guildEntity)) {
+    if (!guildEntity) {
       throw new HttpException(CODE_CONSTANT.NO_DATA, HttpStatus.BAD_REQUEST);
     }
 
@@ -165,6 +194,10 @@ export class GuildService {
       }
     } catch (error) {
       console.error(`Error deleting image files for ${guildName}:`, error);
+    }
+
+    if (guildEntity.guildRecord) {
+      await this.guildRecordRepository.remove(guildEntity.guildRecord);
     }
 
     const removeData = await this.guildRepository.remove(guildEntity);

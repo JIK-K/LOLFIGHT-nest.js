@@ -46,6 +46,21 @@ export class GuildController {
   }
 
   /**
+   * Guild 정보 조회
+   * @param guildName
+   * @returns
+   */
+  @Get('/info')
+  async guildInfo(
+    @Query('name') guildName: string,
+  ): Promise<ResponseDTO<GuildDTO>> {
+    this.logger.log(`Get Guild Info : ${guildName}`);
+    return ResponseUtil.makeSuccessResponse(
+      await this.guildService.getGuildInfo(guildName),
+    );
+  }
+
+  /**
    * Guild 길드 리스트
    * @returns
    */
