@@ -5,9 +5,7 @@ import { GuildDTO } from '../DTOs/guild.dto';
 
 @Injectable()
 export class GuildMapper {
-  constructor() {
-    // empty
-  }
+  constructor() {}
 
   toDTO(guildEntity: Guild): GuildDTO {
     const {
@@ -18,6 +16,7 @@ export class GuildMapper {
       guildDescription,
       guildTier,
       guildIcon,
+      guildRecord,
     } = guildEntity;
 
     return Builder<GuildDTO>()
@@ -28,6 +27,7 @@ export class GuildMapper {
       .guildDescription(guildDescription)
       .guildTier(guildTier)
       .guildIcon(guildIcon)
+      .guildRecord(guildRecord)
       .build();
   }
 

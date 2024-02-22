@@ -1,6 +1,14 @@
 import { BaseEntity } from 'src/base/base.entity';
 import { Member } from 'src/modules/member/entities/member.entity';
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { GuildRecord } from './guild_record.entity';
 
 @Entity({
   name: 'guild',
@@ -32,4 +40,8 @@ export class Guild extends BaseEntity {
 
   @OneToMany(() => Member, (member) => member.memberGuild)
   members: Member[];
+
+  @OneToOne(() => GuildRecord, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'guild_record' })
+  guildRecord: GuildRecord;
 }

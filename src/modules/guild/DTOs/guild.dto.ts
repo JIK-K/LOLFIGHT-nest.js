@@ -1,5 +1,7 @@
 import { IsOptional } from 'class-validator';
 import { BaseDTO } from 'src/base/base.dto';
+import { GuildRecord } from '../entities/guild_record.entity';
+import { GuildRecordDTO } from './guild_record.dto';
 
 export class GuildDTO extends BaseDTO {
   @IsOptional()
@@ -22,4 +24,7 @@ export class GuildDTO extends BaseDTO {
 
   @IsOptional()
   guildIcon: string;
+
+  @IsOptional()
+  guildRecord: GuildRecordDTO;
 }
