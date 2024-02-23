@@ -8,12 +8,15 @@ import * as bcrypt from 'bcrypt';
 import { Builder } from 'builder-pattern';
 import { CommonUtil } from 'src/utils/common.util';
 import { CODE_CONSTANT } from 'src/common/constants/common-code.constant';
+import { MemberGame } from './entities/member_game.entity';
 
 @Injectable()
 export class MemberService {
   constructor(
     @InjectRepository(Member) private memberRepository: Repository<Member>,
     private memberMapper: MemberMapper,
+    @InjectRepository(MemberGame)
+    private memberGameRepository: Repository<MemberGame>,
   ) {}
 
   /**
@@ -122,6 +125,18 @@ export class MemberService {
       memberEntity.memberPw = hashedPassword;
       memberEntity.salt = salt;
     }
+    if (CommonUtil.isValid(memberDTO.memberGame)) {
+      console.log('왓냐?');
+      const memberGameEntity: MemberGame = Builder<MemberGame>()
+        .id(memberDTO.memberGame.id)
+        .gameName(memberDTO.memberGame.gameName)
+        .gameTier(memberDTO.memberGame.gameTier)
+        .build();
+
+      await this.memberGameRepository.save(memberGameEntity);
+      memberEntity.memberGame = memberGameEntity;
+      console.log(memberEntity);
+    }
 
     return this.memberMapper.toDTO(
       await this.memberRepository.save(memberEntity),
@@ -137,6 +152,7 @@ export class MemberService {
     const memberEntity: Member = await this.memberRepository
       .createQueryBuilder('member')
       .leftJoinAndSelect('member.memberGuild', 'guild')
+      .leftJoinAndSelect('member.memberGame', 'member_game')
       .where('member_id = :id', {
         id: id,
       })

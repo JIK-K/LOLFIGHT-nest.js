@@ -5,8 +5,10 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { MemberGame } from './member_game.entity';
 
 @Entity({
   name: 'member',
@@ -30,6 +32,10 @@ export class Member extends BaseEntity {
   @ManyToOne(() => Guild, (guild) => guild.members, { onDelete: 'SET NULL' })
   @JoinColumn({ name: 'member_guild' })
   memberGuild: Guild;
+
+  @OneToOne(() => MemberGame, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'member_game' })
+  memberGame: MemberGame;
 
   @Column()
   salt: string;

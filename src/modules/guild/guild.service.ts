@@ -194,7 +194,7 @@ export class GuildService {
   async deleteGuild(guildName: string): Promise<GuildDTO> {
     const guildEntity: Guild = await this.guildRepository
       .createQueryBuilder('guild')
-      .leftJoinAndSelect('guild.guild_record', 'guild_record')
+      .leftJoinAndSelect('guild.guildRecord', 'guildRecord')
       .where('guild.guild_name = :name', { name: guildName })
       .getOne();
 
