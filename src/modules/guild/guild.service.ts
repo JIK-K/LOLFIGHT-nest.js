@@ -21,6 +21,7 @@ import * as path from 'path';
 import { MemberDTO } from '../member/DTOs/member.dto';
 import { MemberMapper } from '../member/mapper/member.mapper';
 import { GuildRecord } from './entities/guild_record.entity';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
 @Injectable()
 export class GuildService {
@@ -33,6 +34,24 @@ export class GuildService {
     @InjectRepository(GuildRecord)
     private guildRecordRepository: Repository<GuildRecord>,
   ) {}
+
+  /**
+   * 길드 랭킹 업데이트
+   */
+  @Cron(CronExpression.EVERY_DAY_AT_4AM)
+  async updateRanking() {
+    const records = await this.guildRecordRepository.find({
+      order: { recordLadder: 'DESC' },
+    });
+
+    let rank = 1;
+    for (const record of records) {
+      record.recordRanking = rank.toString();
+      rank++;
+    }
+
+    await this.guildRecordRepository.save(records);
+  }
 
   /**
    * guild 생성

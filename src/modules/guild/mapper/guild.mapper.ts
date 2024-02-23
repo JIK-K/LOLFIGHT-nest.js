@@ -17,6 +17,8 @@ export class GuildMapper {
       guildTier,
       guildIcon,
       guildRecord,
+      createdAt,
+      updatedAt,
     } = guildEntity;
 
     return Builder<GuildDTO>()
@@ -28,6 +30,8 @@ export class GuildMapper {
       .guildTier(guildTier)
       .guildIcon(guildIcon)
       .guildRecord(guildRecord)
+      .createAt(createdAt)
+      .updateAt(updatedAt)
       .build();
   }
 
