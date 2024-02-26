@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  ConsoleLogger,
+  HttpException,
+  HttpStatus,
+  Injectable,
+} from '@nestjs/common';
 import { Guild } from './entities/guild.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -22,6 +27,9 @@ import { MemberDTO } from '../member/DTOs/member.dto';
 import { MemberMapper } from '../member/mapper/member.mapper';
 import { GuildRecord } from './entities/guild_record.entity';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import { GuildInviteDTO } from './DTOs/guild_invite.dto';
+import { GuildInvite } from './entities/guild_initve.entity';
+import { GuildInviteMapper } from './mapper/guild_invite.mapper';
 
 @Injectable()
 export class GuildService {
@@ -33,6 +41,9 @@ export class GuildService {
     private memberMapper: MemberMapper,
     @InjectRepository(GuildRecord)
     private guildRecordRepository: Repository<GuildRecord>,
+    @InjectRepository(GuildInvite)
+    private guildInviteRepository: Repository<GuildInvite>,
+    private guildInviteMapper: GuildInviteMapper,
   ) {}
 
   /**
@@ -168,6 +179,7 @@ export class GuildService {
   async getGuildMemberList(guildName: string): Promise<MemberDTO[]> {
     const memberEntities: Member[] = await this.memberRepository
       .createQueryBuilder('member')
+      .leftJoinAndSelect('member.memberGame', 'memberGame')
       .where((subQuery) => {
         const subQueryAlias = subQuery
           .subQuery()
@@ -221,5 +233,129 @@ export class GuildService {
 
     const removeData = await this.guildRepository.remove(guildEntity);
     return this.guildMapper.toDTO(removeData);
+  }
+
+  /**
+   * Guild-Invite 길드 가입신청
+   * @param guildInviteDTO
+   * @returns
+   */
+  async addGuildInvite(guildInviteDTO: GuildInviteDTO) {
+    const existInviteData = await this.guildInviteRepository
+      .createQueryBuilder('guild_invite')
+      .where('member_id = :memberId AND guild_id = :guildId', {
+        memberId: guildInviteDTO.memberId,
+        guildId: guildInviteDTO.guildId,
+      })
+      .getOne();
+
+    if (existInviteData) {
+      throw new HttpException(CODE_CONSTANT.EXIST_DATA, HttpStatus.BAD_REQUEST);
+    }
+
+    const existIncludeGuild = await this.memberRepository
+      .createQueryBuilder('member')
+      .where('id = :memberId AND member.memberGuild IS NOT NULL', {
+        memberId: guildInviteDTO.memberId,
+      })
+      .getOne();
+
+    if (existIncludeGuild) {
+      throw new HttpException(CODE_CONSTANT.EXIST_DATA, HttpStatus.BAD_REQUEST);
+    }
+
+    const guildInviteEntity: GuildInvite = Builder<GuildInvite>()
+      .id(guildInviteDTO.id)
+      .memberId(guildInviteDTO.memberId)
+      .guildId(guildInviteDTO.guildId)
+      .build();
+
+    return this.guildInviteMapper.toDTO(
+      await this.guildInviteRepository.save(guildInviteEntity),
+    );
+  }
+
+  /**
+   * Guild-Invite 길드 가입신청 리스트
+   * @param guildName
+   * @returns
+   */
+  async getGuildInviteList(guildName: string) {
+    const targetGuild: Guild = await this.guildRepository
+      .createQueryBuilder('guild')
+      .leftJoinAndSelect('guild.guildRecord', 'guildRecord')
+      .where('guild_name = :name', {
+        name: guildName,
+      })
+      .getOne();
+
+    if (!CommonUtil.isValid(targetGuild)) {
+      throw new HttpException(CODE_CONSTANT.NO_DATA, HttpStatus.BAD_REQUEST);
+    }
+
+    const inviteEntities: GuildInvite[] = await this.guildInviteRepository
+      .createQueryBuilder('guild_invite')
+      .leftJoinAndSelect('guild_invite.memberId', 'member')
+      .leftJoinAndSelect('guild_invite.guildId', 'guild')
+      .leftJoinAndSelect('member.memberGame', 'memberGame')
+      .where('guild_id = :id', {
+        id: targetGuild.id,
+      })
+      .getMany();
+
+    return this.guildInviteMapper.toDTOList(inviteEntities);
+  }
+
+  async inviteAccept(memberId: string, guildId: string) {
+    const acceptEntity: GuildInvite = await this.guildInviteRepository
+      .createQueryBuilder('guild_invite')
+      .where('member_id = :memberId AND guild_id = :guildId', {
+        memberId: memberId,
+        guildId: guildId,
+      })
+      .getOne();
+
+    if (!acceptEntity) {
+      throw new HttpException(CODE_CONSTANT.NO_DATA, HttpStatus.BAD_REQUEST);
+    }
+
+    const removeEntity: GuildInvite[] = await this.guildInviteRepository
+      .createQueryBuilder('guild_invite')
+      .where('member_id = :memberId', {
+        memberId: memberId,
+      })
+      .getMany();
+
+    await this.guildInviteRepository.remove(removeEntity);
+
+    const inviteGuild: Guild = await this.guildRepository
+      .createQueryBuilder('guild')
+      .where('id = :guildId', {
+        guildId: guildId,
+      })
+      .getOne();
+
+    if (!inviteGuild) {
+      throw new HttpException(CODE_CONSTANT.NO_DATA, HttpStatus.BAD_REQUEST);
+    }
+
+    inviteGuild.guildMembers += 1;
+    await this.guildRepository.save(inviteGuild);
+
+    const inviteMember: Member = await this.memberRepository
+      .createQueryBuilder('member')
+      .where('id = :memberId', {
+        memberId: memberId,
+      })
+      .getOne();
+
+    if (!inviteMember) {
+      throw new HttpException(CODE_CONSTANT.NO_DATA, HttpStatus.BAD_REQUEST);
+    }
+
+    inviteMember.memberGuild = inviteGuild;
+    return this.memberMapper.toDTO(
+      await this.memberRepository.save(inviteMember),
+    );
   }
 }

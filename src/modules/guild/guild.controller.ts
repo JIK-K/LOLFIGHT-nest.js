@@ -5,6 +5,7 @@ import {
   Delete,
   Get,
   Logger,
+  Param,
   Post,
   Query,
   UploadedFile,
@@ -17,6 +18,7 @@ import { ResponseUtil } from 'src/utils/response.util';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { multerConfig } from 'src/common/configs/multer.config';
 import { MemberDTO } from '../member/DTOs/member.dto';
+import { GuildInviteDTO } from './DTOs/guild_invite.dto';
 
 @Controller('guild')
 export class GuildController {
@@ -99,6 +101,53 @@ export class GuildController {
     this.logger.log(`Delete Guild : ${guildName}`);
     return ResponseUtil.makeSuccessResponse(
       await this.guildService.deleteGuild(guildName),
+    );
+  }
+
+  /**
+   * Guild-Invite 길드 가입신청
+   * @param guildInviteDTO
+   * @returns
+   */
+  @Post('/invite')
+  async guildInvite(
+    @Body() guildInviteDTO: GuildInviteDTO,
+  ): Promise<ResponseDTO<GuildInviteDTO>> {
+    this.logger.log(`Invite Guild`);
+    return ResponseUtil.makeSuccessResponse(
+      await this.guildService.addGuildInvite(guildInviteDTO),
+    );
+  }
+
+  /**
+   * Guild-Invite 길드 가입신청 리스트
+   * @param guildName
+   * @returns
+   */
+  @Get('/invite/list')
+  async guildInviteList(
+    @Query('name') guildName: string,
+  ): Promise<ResponseDTO<GuildInviteDTO[]>> {
+    this.logger.log(`Get Guild[${guildName}] Invite List`);
+    return ResponseUtil.makeSuccessResponse(
+      await this.guildService.getGuildInviteList(guildName),
+    );
+  }
+
+  /**
+   * Guild-Invite 길드 가입신청 수락
+   * @param memberId
+   * @param guildId
+   * @returns
+   */
+  @Get('/invite/accept')
+  async inviteAccept(
+    @Query('memberId') memberId: string,
+    @Query('guildId') guildId: string,
+  ): Promise<ResponseDTO<MemberDTO>> {
+    this.logger.log(`Invite Accept ${memberId} - ${guildId}`);
+    return ResponseUtil.makeSuccessResponse(
+      await this.guildService.inviteAccept(memberId, guildId),
     );
   }
 }
