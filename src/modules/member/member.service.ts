@@ -38,8 +38,6 @@ export class MemberService {
       })
       .getOne();
 
-    console.log(existMemberData);
-
     if (existMemberData) {
       throw new HttpException(CODE_CONSTANT.EXIST_DATA, HttpStatus.BAD_REQUEST);
     }
@@ -126,7 +124,6 @@ export class MemberService {
       memberEntity.salt = salt;
     }
     if (CommonUtil.isValid(memberDTO.memberGame)) {
-      console.log('왓냐?');
       const memberGameEntity: MemberGame = Builder<MemberGame>()
         .id(memberDTO.memberGame.id)
         .gameName(memberDTO.memberGame.gameName)
@@ -135,7 +132,6 @@ export class MemberService {
 
       await this.memberGameRepository.save(memberGameEntity);
       memberEntity.memberGame = memberGameEntity;
-      console.log(memberEntity);
     }
 
     return this.memberMapper.toDTO(
