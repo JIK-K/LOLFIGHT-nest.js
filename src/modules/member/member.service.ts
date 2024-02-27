@@ -9,6 +9,7 @@ import { Builder } from 'builder-pattern';
 import { CommonUtil } from 'src/utils/common.util';
 import { CODE_CONSTANT } from 'src/common/constants/common-code.constant';
 import { MemberGame } from './entities/member_game.entity';
+import { Guild } from '../guild/entities/guild.entity';
 
 @Injectable()
 export class MemberService {
@@ -17,6 +18,7 @@ export class MemberService {
     private memberMapper: MemberMapper,
     @InjectRepository(MemberGame)
     private memberGameRepository: Repository<MemberGame>,
+    @InjectRepository(Guild) private guildRepository: Repository<Guild>,
   ) {}
 
   /**
@@ -106,6 +108,7 @@ export class MemberService {
       })
       .getOne();
 
+    console.log(memberDTO.memberGuild);
     if (!CommonUtil.isValid(memberEntity)) {
       throw new HttpException(CODE_CONSTANT.NO_DATA, HttpStatus.BAD_REQUEST);
     }
@@ -133,6 +136,41 @@ export class MemberService {
       await this.memberGameRepository.save(memberGameEntity);
       memberEntity.memberGame = memberGameEntity;
     }
+
+    return this.memberMapper.toDTO(
+      await this.memberRepository.save(memberEntity),
+    );
+  }
+
+  /**
+   * Member 길드 탈퇴
+   * @param id
+   * @returns
+   */
+  async leaveMember(id: string): Promise<MemberDTO> {
+    const memberEntity: Member = await this.memberRepository
+      .createQueryBuilder('member')
+      .leftJoinAndSelect('member.memberGuild', 'guild')
+      .where('member_id = :id', {
+        id: id,
+      })
+      .getOne();
+
+    if (!CommonUtil.isValid(memberEntity)) {
+      throw new HttpException(CODE_CONSTANT.NO_DATA, HttpStatus.BAD_REQUEST);
+    }
+
+    const memberGuild: Guild = await this.guildRepository
+      .createQueryBuilder('guild')
+      .where('guild_name = :name', {
+        name: memberEntity.memberGuild.guildName,
+      })
+      .getOne();
+
+    memberGuild.guildMembers -= 1;
+    await this.guildRepository.save(memberGuild);
+
+    memberEntity.memberGuild = null;
 
     return this.memberMapper.toDTO(
       await this.memberRepository.save(memberEntity),
