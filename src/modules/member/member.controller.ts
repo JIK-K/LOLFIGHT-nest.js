@@ -69,6 +69,19 @@ export class MemberController {
   }
 
   /**
+   * Member 길드 탈퇴
+   * @param id
+   * @returns
+   */
+  @Patch('/leave')
+  async leaveGuild(@Query('id') id: string): Promise<ResponseDTO<MemberDTO>> {
+    this.logger.log(`Leave Guild Member ${id}`);
+    return ResponseUtil.makeSuccessResponse(
+      await this.memberService.leaveMember(id),
+    );
+  }
+
+  /**
    * Member 업데이트
    * @param memberDTO
    * @returns
