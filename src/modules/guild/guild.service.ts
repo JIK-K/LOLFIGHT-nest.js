@@ -199,6 +199,45 @@ export class GuildService {
   }
 
   /**
+   * guild 길드원 추방
+   * @param memberName
+   * @param guildName
+   * @returns
+   */
+  async expulsionGuildMember(memberName: string, guildName: string) {
+    const memberEntity: Member = await this.memberRepository
+      .createQueryBuilder('member')
+      .where('member_name = :name', {
+        name: memberName,
+      })
+      .getOne();
+
+    if (!memberEntity) {
+      throw new HttpException(CODE_CONSTANT.NO_DATA, HttpStatus.BAD_REQUEST);
+    }
+
+    const guildEntity: Guild = await this.guildRepository
+      .createQueryBuilder('guild')
+      .where('guild_name = :name', {
+        name: guildName,
+      })
+      .getOne();
+
+    if (!guildEntity) {
+      throw new HttpException(CODE_CONSTANT.NO_DATA, HttpStatus.BAD_REQUEST);
+    }
+
+    guildEntity.guildMembers -= 1;
+    await this.guildRepository.save(guildEntity);
+
+    memberEntity.memberGuild = null;
+
+    return this.memberMapper.toDTO(
+      await this.memberRepository.save(memberEntity),
+    );
+  }
+
+  /**
    * guild 해체
    * @param guildName
    * @returns
@@ -306,6 +345,12 @@ export class GuildService {
     return this.guildInviteMapper.toDTOList(inviteEntities);
   }
 
+  /**
+   * Guild-Invite 길드 가입신청 수락
+   * @param memberId
+   * @param guildId
+   * @returns
+   */
   async inviteAccept(memberId: string, guildId: string) {
     const acceptEntity: GuildInvite = await this.guildInviteRepository
       .createQueryBuilder('guild_invite')
@@ -356,6 +401,30 @@ export class GuildService {
     inviteMember.memberGuild = inviteGuild;
     return this.memberMapper.toDTO(
       await this.memberRepository.save(inviteMember),
+    );
+  }
+
+  /**
+   * Guild-Invite 길드 가입신청 거절
+   * @param memberId
+   * @param guildId
+   * @returns
+   */
+  async inviteReject(memberId: string, guildId: string) {
+    const inviteEntity: GuildInvite = await this.guildInviteRepository
+      .createQueryBuilder('guild_invite')
+      .where('member_id = :memberId AND guild_id = :guildId', {
+        memberId: memberId,
+        guildId: guildId,
+      })
+      .getOne();
+
+    if (!inviteEntity) {
+      throw new HttpException(CODE_CONSTANT.NO_DATA, HttpStatus.BAD_REQUEST);
+    }
+
+    return this.guildInviteMapper.toDTO(
+      await this.guildInviteRepository.remove(inviteEntity),
     );
   }
 }
