@@ -6,6 +6,7 @@ import {
   Get,
   Logger,
   Param,
+  Patch,
   Post,
   Query,
   UploadedFile,
@@ -90,6 +91,23 @@ export class GuildController {
   }
 
   /**
+   * guild 길드원 추방
+   * @param memberName
+   * @param guildName
+   * @returns
+   */
+  @Patch('/expulsion')
+  async expulsionGuildMember(
+    @Query('member_name') memberName,
+    @Query('guild_name') guildName,
+  ): Promise<ResponseDTO<MemberDTO>> {
+    this.logger.log(`Expulsion Member-[${memberName}] to Guild[${guildName}]`);
+    return ResponseUtil.makeSuccessResponse(
+      await this.guildService.expulsionGuildMember(memberName, guildName),
+    );
+  }
+
+  /**
    * Guild 해체
    * @param guildName
    * @returns
@@ -148,6 +166,23 @@ export class GuildController {
     this.logger.log(`Invite Accept ${memberId} - ${guildId}`);
     return ResponseUtil.makeSuccessResponse(
       await this.guildService.inviteAccept(memberId, guildId),
+    );
+  }
+
+  /**
+   * Guild-Invite 길드 가입신청 거절
+   * @param memberId
+   * @param guildId
+   * @returns
+   */
+  @Get('/invite/reject')
+  async inviteReject(
+    @Query('memberId') memberId: string,
+    @Query('guildId') guildId: string,
+  ): Promise<ResponseDTO<GuildInviteDTO>> {
+    this.logger.log(`Invite Reject ${memberId} - ${guildId}`);
+    return ResponseUtil.makeSuccessResponse(
+      await this.guildService.inviteReject(memberId, guildId),
     );
   }
 }
