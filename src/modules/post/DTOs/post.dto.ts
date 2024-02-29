@@ -28,5 +28,5 @@ export class PostDTO extends BaseDTO {
   postComments: number;
 
   @IsOptional()
-  postBoard: Board;
+  postBoard: string;
 }

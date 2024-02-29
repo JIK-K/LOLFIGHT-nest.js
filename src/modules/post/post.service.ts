@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Post } from './entities/post.entity';
 import { Repository } from 'typeorm';
@@ -6,6 +6,14 @@ import { PostMapper } from './mapper/post.mapper';
 import { PostDTO } from './DTOs/post.dto';
 import { Builder } from 'builder-pattern';
 import { Board } from '../board/entities/board.entity';
+import { join } from 'path';
+import {
+  createReadStream,
+  createWriteStream,
+  existsSync,
+  rmSync,
+  unlinkSync,
+} from 'fs';
 
 @Injectable()
 export class PostService {
@@ -14,7 +22,7 @@ export class PostService {
     private postMapper: PostMapper,
     @InjectRepository(Board) private boardRepository: Repository<Board>,
   ) {}
-
+  private logger: Logger = new Logger();
   /**
    * Post 생성
    * @param postDTO
@@ -33,7 +41,6 @@ export class PostService {
       .postTitle(postDTO.postTitle)
       .postContent(postDTO.postContent)
       .postWriter(postDTO.postWriter)
-      .postDate(postDTO.postDate)
       .postViews(postDTO.postViews)
       .postLikes(postDTO.postLikes)
       .postComments(postDTO.postComments)
@@ -43,5 +50,22 @@ export class PostService {
     console.log('ddd', postEntity);
 
     return this.postMapper.toDTO(await this.postRepository.save(postEntity));
+  }
+
+  async saveImage(image: Express.Multer.File): Promise<string> {
+    if (image) {
+      const filePath = join(__dirname, '../../..', 'uploads', image.filename);
+      if (existsSync(filePath)) {
+        rmSync(filePath);
+      }
+      const readStream = createReadStream(image.path);
+      const writeStream = createWriteStream(filePath);
+
+      readStream.pipe(writeStream);
+      writeStream.on('finish', () => {
+        unlinkSync(image.path);
+      });
+    }
+    return;
   }
 }

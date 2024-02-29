@@ -15,7 +15,6 @@ export class PostMapper {
       postTitle,
       postContent,
       postWriter,
-      postDate,
       postViews,
       postLikes,
       postComments,
@@ -26,7 +25,6 @@ export class PostMapper {
       .postTitle(postTitle)
       .postContent(postContent)
       .postWriter(postWriter)
-      .postDate(postDate)
       .postViews(postViews)
       .postLikes(postLikes)
       .postComments(postComments)
