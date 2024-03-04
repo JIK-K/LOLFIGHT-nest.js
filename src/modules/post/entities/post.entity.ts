@@ -19,7 +19,7 @@ export class Post extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @PrimaryColumn()
+  @PrimaryColumn({ name: 'board_id' })
   boardId: string;
 
   @Column({ name: 'post_title' })
@@ -41,6 +41,6 @@ export class Post extends BaseEntity {
   postComments: number;
 
   @ManyToOne(() => Board, (board) => board.id)
-  @JoinColumn({ name: 'boardId' })
+  @JoinColumn({ name: 'board_id' })
   board: Board;
 }

@@ -13,6 +13,7 @@ import {
   existsSync,
   rmSync,
   unlinkSync,
+  mkdirSync,
 } from 'fs';
 
 @Injectable()
@@ -22,7 +23,9 @@ export class PostService {
     private postMapper: PostMapper,
     @InjectRepository(Board) private boardRepository: Repository<Board>,
   ) {}
+
   private logger: Logger = new Logger();
+
   /**
    * Post 생성
    * @param postDTO
@@ -49,23 +52,65 @@ export class PostService {
 
     console.log('ddd', postEntity);
 
-    return this.postMapper.toDTO(await this.postRepository.save(postEntity));
+    const createdPost = this.postMapper.toDTO(
+      await this.postRepository.save(postEntity),
+    );
+
+    return createdPost;
   }
 
   async saveImage(image: Express.Multer.File): Promise<string> {
-    if (image) {
-      const filePath = join(__dirname, '../../..', 'uploads', image.filename);
-      if (existsSync(filePath)) {
-        rmSync(filePath);
+    return new Promise<string>((resolve, reject) => {
+      let postImagePath: string | undefined;
+      if (image) {
+        const uploadDir = join(
+          __dirname,
+          '../../..',
+          'public/image/post',
+          // image.filename,
+        );
+        if (!existsSync(uploadDir)) {
+          mkdirSync(uploadDir, { recursive: true });
+        }
+        const filePath = join(uploadDir, image.filename);
+        const readStream = createReadStream(image.path);
+        const writeStream = createWriteStream(filePath);
+        readStream.pipe(writeStream);
+        writeStream.on('finish', () => {
+          unlinkSync(image.path);
+          postImagePath = `public/image/post/${image.filename}`;
+          console.log('postImagePath', postImagePath);
+          resolve(postImagePath); // 이미지 저장이 완료된 후에 경로를 반환합니다.
+        });
+        writeStream.on('error', (error) => {
+          reject(error);
+        });
       }
-      const readStream = createReadStream(image.path);
-      const writeStream = createWriteStream(filePath);
+    });
+  }
 
-      readStream.pipe(writeStream);
-      writeStream.on('finish', () => {
-        unlinkSync(image.path);
-      });
-    }
-    return;
+  /**
+   * Post 리스트 조회
+   * @param board
+   * @returns {Promise<PostDTO[]>}
+   */
+  async getPostList(board: string): Promise<PostDTO[]> {
+    this.logger.log('board', board);
+    const getBoardData = await this.boardRepository
+      .createQueryBuilder('board')
+      .where('board_type = :type', {
+        type: board,
+      })
+      .getOne();
+
+    this.logger.log('getBoardData', getBoardData);
+
+    const postEntites = await this.postRepository
+      .createQueryBuilder('post')
+      .where('board_id = :id', { id: getBoardData.id })
+      .getMany();
+
+    this.logger.log('postEntites', postEntites);
+    return await this.postMapper.toDTOList(postEntites);
   }
 }

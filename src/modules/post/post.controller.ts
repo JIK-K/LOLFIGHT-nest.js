@@ -6,6 +6,8 @@ import {
   Bind,
   UseInterceptors,
   UploadedFile,
+  Get,
+  Query,
 } from '@nestjs/common';
 import { PostService } from './post.service';
 import { PostDTO } from './DTOs/post.dto';
@@ -54,6 +56,16 @@ export class PostController {
     this.logger.log('file', file);
     return ResponseUtil.makeSuccessResponse(
       await this.postService.saveImage(file),
+    );
+  }
+
+  @Get('/list')
+  async getPostList(
+    @Query('board') board: string,
+  ): Promise<ResponseDTO<PostDTO[]>> {
+    this.logger.log(`Get Post List : ${board}`);
+    return ResponseUtil.makeSuccessResponse(
+      await this.postService.getPostList(board),
     );
   }
 }
