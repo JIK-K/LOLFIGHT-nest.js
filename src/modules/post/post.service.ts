@@ -113,4 +113,30 @@ export class PostService {
     this.logger.log('postEntites', postEntites);
     return await this.postMapper.toDTOList(postEntites);
   }
+
+  /**
+   * Post 내용 조회
+   * @param board, postId
+   * @returns {Promise<PostDTO>}
+   */
+  async getPost(board: string, postId: number): Promise<PostDTO> {
+    this.logger.log('board, postId', board, postId);
+    const getBoardData = await this.boardRepository
+      .createQueryBuilder('board')
+      .where('board_type = :type', {
+        type: board,
+      })
+      .getOne();
+
+    this.logger.log('getBoardData', getBoardData);
+
+    const postEntity = await this.postRepository
+      .createQueryBuilder('post')
+      .where('board_id = :id', { id: getBoardData.id })
+      .andWhere('id = :postId', { postId: postId })
+      .getOne();
+
+    this.logger.log('postEntity', postEntity);
+    return await this.postMapper.toDTO(postEntity);
+  }
 }

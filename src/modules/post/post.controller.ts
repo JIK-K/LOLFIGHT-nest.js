@@ -59,6 +59,11 @@ export class PostController {
     );
   }
 
+  /**
+   * Post 리스트 조회
+   * @param board
+   * @returns
+   */
   @Get('/list')
   async getPostList(
     @Query('board') board: string,
@@ -66,6 +71,22 @@ export class PostController {
     this.logger.log(`Get Post List : ${board}`);
     return ResponseUtil.makeSuccessResponse(
       await this.postService.getPostList(board),
+    );
+  }
+
+  /**
+   * Post 내용 조회
+   * @param board, postId
+   * @returns
+   */
+  @Get('')
+  async getPost(
+    @Query('board') board: string,
+    @Query('postId') postId: number,
+  ): Promise<ResponseDTO<PostDTO>> {
+    this.logger.log(`Get Post : ${board}, ${postId}`);
+    return ResponseUtil.makeSuccessResponse(
+      await this.postService.getPost(board, postId),
     );
   }
 }
