@@ -108,7 +108,9 @@ export class MemberService {
       })
       .getOne();
 
-    console.log(memberDTO.memberGuild);
+    console.log(memberDTO);
+    console.log(memberEntity);
+
     if (!CommonUtil.isValid(memberEntity)) {
       throw new HttpException(CODE_CONSTANT.NO_DATA, HttpStatus.BAD_REQUEST);
     }
@@ -127,14 +129,23 @@ export class MemberService {
       memberEntity.salt = salt;
     }
     if (CommonUtil.isValid(memberDTO.memberGame)) {
-      const memberGameEntity: MemberGame = Builder<MemberGame>()
-        .id(memberDTO.memberGame.id)
-        .gameName(memberDTO.memberGame.gameName)
-        .gameTier(memberDTO.memberGame.gameTier)
-        .build();
+      const existGameData: MemberGame = await this.memberGameRepository
+        .createQueryBuilder('member_game')
+        .where('game_name = :name', {
+          name: memberDTO.memberGame.gameName,
+        })
+        .getOne();
 
-      await this.memberGameRepository.save(memberGameEntity);
-      memberEntity.memberGame = memberGameEntity;
+      if (!existGameData) {
+        const memberGameEntity: MemberGame = Builder<MemberGame>()
+          .id(memberDTO.memberGame.id)
+          .gameName(memberDTO.memberGame.gameName)
+          .gameTier(memberDTO.memberGame.gameTier)
+          .build();
+
+        await this.memberGameRepository.save(memberGameEntity);
+        memberEntity.memberGame = memberGameEntity;
+      }
     }
 
     return this.memberMapper.toDTO(
