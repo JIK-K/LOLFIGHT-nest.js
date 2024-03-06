@@ -79,7 +79,7 @@ export class PostController {
    * @param board, postId
    * @returns
    */
-  @Get('')
+  @Get('/')
   async getPost(
     @Query('board') board: string,
     @Query('postId') postId: number,
