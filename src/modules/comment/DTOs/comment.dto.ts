@@ -6,17 +6,14 @@ export class CommentDTO extends BaseDTO {
   id: string;
 
   @IsOptional()
-  postId: number;
-
-  @IsOptional()
-  postBoardId: string;
-
-  @IsOptional()
   commentContent: string;
 
   @IsOptional()
   depth: number;
 
   @IsOptional()
-  orderNomber: number;
+  orderNumber: number;
+
+  @IsOptional()
+  post: string;
 }

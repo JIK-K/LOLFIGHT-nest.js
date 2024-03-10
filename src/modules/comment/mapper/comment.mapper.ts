@@ -10,17 +10,14 @@ export class CommentMapper {
   }
 
   toDTO(commentEntity: Comment): CommentDTO {
-    const { id, postId, postBoardId, commentContent, depth, orderNomber } =
-      commentEntity;
+    const { id, commentContent, depth, orderNumber } = commentEntity;
 
     return Builder<CommentDTO>()
       .id(id)
-      .postId(postId)
-      .postBoardId(postBoardId)
 
       .commentContent(commentContent)
       .depth(depth)
-      .orderNomber(orderNomber)
+      .orderNumber(orderNumber)
       .build();
   }
 

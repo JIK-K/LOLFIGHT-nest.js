@@ -19,11 +19,11 @@ export class Comment extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @PrimaryColumn({ name: 'post_id' })
-  postId: number;
+  // @PrimaryColumn({ name: 'post_id' })
+  // postId: number;
 
-  @PrimaryColumn({ name: 'post_board_id' })
-  postBoardId: string;
+  // @PrimaryColumn({ name: 'post_board_id' })
+  // postBoardId: string;
 
   @Column({ name: 'comment_content' })
   commentContent: string;
@@ -31,14 +31,14 @@ export class Comment extends BaseEntity {
   @Column({ name: 'depth', default: 0 })
   depth: number;
 
-  @Column({ name: 'orderNomber', default: 0 })
-  orderNomber: number;
+  @Column({ name: 'orderNumber', default: 0 })
+  orderNumber: number;
 
-  @ManyToOne(() => Post, (post) => post.id)
-  @JoinColumn({ name: 'post_id' })
-  post: Post;
+  // @ManyToOne(() => Post, (post) => post.id)
+  // @JoinColumn({ name: 'postId' })
+  // post: Post;
 
-  @ManyToOne(() => Post, (post) => post.boardId)
-  @JoinColumn({ name: 'post_board_id' })
-  postBoard: Post;
+  //   @ManyToOne(() => Post, (post) => post.boardId)
+  //   @JoinColumn({ name: 'post_board_id' })
+  //   postBoard: Post;
 }
