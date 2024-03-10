@@ -10,14 +10,30 @@ export class CommentMapper {
   }
 
   toDTO(commentEntity: Comment): CommentDTO {
-    const { id, commentContent, depth, orderNumber } = commentEntity;
+    const {
+      id,
+      commentContent,
+      depth,
+      orderNumber,
+      deletedTrue,
+      deletedAt,
+      isCommentForComment,
+      postId,
+      postBoardId,
+      memberId,
+    } = commentEntity;
 
     return Builder<CommentDTO>()
       .id(id)
-
       .commentContent(commentContent)
       .depth(depth)
       .orderNumber(orderNumber)
+      .deletedTrue(deletedTrue)
+      .deletedAt(deletedAt)
+      .isCommentForComment(isCommentForComment)
+      .postId(postId)
+      .postBoardId(postBoardId)
+      .memberId(memberId)
       .build();
   }
 

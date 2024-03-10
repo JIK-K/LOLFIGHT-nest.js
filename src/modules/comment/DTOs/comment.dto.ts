@@ -15,5 +15,20 @@ export class CommentDTO extends BaseDTO {
   orderNumber: number;
 
   @IsOptional()
-  post: string;
+  deletedTrue: boolean;
+
+  @IsOptional()
+  deletedAt: Date;
+
+  @IsOptional()
+  isCommentForComment: boolean;
+
+  @IsOptional()
+  postId: number;
+
+  @IsOptional()
+  postBoardId: string;
+
+  @IsOptional()
+  memberId: string;
 }
