@@ -1,5 +1,6 @@
 import { IsOptional } from 'class-validator';
 import { BaseDTO } from 'src/base/base.dto';
+import { PostDTO } from 'src/modules/post/DTOs/post.dto';
 
 export class CommentDTO extends BaseDTO {
   @IsOptional()
@@ -28,6 +29,9 @@ export class CommentDTO extends BaseDTO {
 
   @IsOptional()
   postBoardId: string;
+
+  @IsOptional()
+  post: PostDTO;
 
   @IsOptional()
   memberId: string;

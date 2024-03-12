@@ -144,6 +144,9 @@ export class PostService {
       .getOne();
 
     this.logger.log('postEntity', postEntity);
-    return await this.postMapper.toDTO(postEntity);
+    const postDTO = await this.postMapper.toDTO(postEntity);
+    postDTO.postBoard = board;
+
+    return await postDTO;
   }
 }
