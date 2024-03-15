@@ -145,6 +145,11 @@ export class MemberService {
 
         await this.memberGameRepository.save(memberGameEntity);
         memberEntity.memberGame = memberGameEntity;
+      } else {
+        existGameData.gameName = memberDTO.memberGame.gameName;
+        existGameData.gameTier = memberDTO.memberGame.gameTier;
+        await this.memberGameRepository.save(existGameData);
+        memberEntity.memberGame = existGameData;
       }
     }
 
