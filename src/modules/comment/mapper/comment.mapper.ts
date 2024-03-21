@@ -20,8 +20,10 @@ export class CommentMapper {
       isCommentForComment,
       postId,
       postBoardId,
-      memberId,
+      member,
     } = commentEntity;
+
+    const writer = member.memberName;
 
     return Builder<CommentDTO>()
       .id(id)
@@ -33,7 +35,7 @@ export class CommentMapper {
       .isCommentForComment(isCommentForComment)
       .postId(postId)
       .postBoardId(postBoardId)
-      .memberId(memberId)
+      .writer(writer)
       .build();
   }
 

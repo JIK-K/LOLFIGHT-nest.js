@@ -1,4 +1,4 @@
-import { Body, Post, Logger } from '@nestjs/common';
+import { Body, Post, Logger, Query, Get } from '@nestjs/common';
 import { Controller } from '@nestjs/common';
 import { CommentService } from './comment.service';
 import { CommentDTO } from './DTOs/comment.dto';
@@ -24,6 +24,22 @@ export class CommentController {
 
     return ResponseUtil.makeSuccessResponse(
       await this.commentService.createComment(commentDTO),
+    );
+  }
+
+  /**
+   * Comment 조회
+   * @param
+   * @returns CommentDTO[]
+   */
+  @Get()
+  async getCommentList(
+    @Query('postId') postId: number,
+    @Query('postBoard') postBoard: string,
+  ): Promise<ResponseDTO<CommentDTO[]>> {
+    this.logger.log(`하지마루요 : ${postId}`);
+    return ResponseUtil.makeSuccessResponse(
+      await this.commentService.getCommentList(postId, postBoard),
     );
   }
 }
