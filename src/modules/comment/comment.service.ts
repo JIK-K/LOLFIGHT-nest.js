@@ -6,6 +6,8 @@ import { CommentMapper } from './mapper/comment.mapper';
 import { CommentDTO } from './DTOs/comment.dto';
 import { Builder } from 'builder-pattern';
 import { Board } from '../board/entities/board.entity';
+import { Post } from '../post/entities/post.entity';
+import { Member } from '../member/entities/member.entity';
 
 @Injectable()
 export class CommentService {
@@ -13,6 +15,8 @@ export class CommentService {
     @InjectRepository(Comment) private commentRepository: Repository<Comment>,
     private commentMapper: CommentMapper,
     @InjectRepository(Board) private boardRepository: Repository<Board>,
+    @InjectRepository(Post) private postRepository: Repository<Post>,
+    @InjectRepository(Member) private memberRepository: Repository<Member>,
   ) {}
 
   private logger: Logger = new Logger();
@@ -30,20 +34,41 @@ export class CommentService {
       })
       .getOne();
 
+    const getMemberData = await this.memberRepository.findOne({
+      where: { memberName: commentDTO.writer },
+    });
+
     this.logger.log('나여깄소 : ', getBoardData.id);
+
+    const getPostData = await this.postRepository.findOne({
+      where: { id: commentDTO.post.id },
+    });
 
     const commentEntity: Comment = Builder<Comment>()
       .id(commentDTO.id)
       .commentContent(commentDTO.commentContent)
-      .depth(commentDTO.depth)
       .orderNumber(commentDTO.orderNumber)
       .deletedTrue(commentDTO.deletedTrue)
       .deletedAt(commentDTO.deletedAt)
       .isCommentForComment(commentDTO.isCommentForComment)
       .postId(commentDTO.postId)
       .postBoardId(getBoardData.id)
-      .memberId(commentDTO.memberId)
+      .memberId(getMemberData.id)
       .build();
+
+    if (commentDTO.parentComment == null) {
+      commentEntity.isCommentForComment = false; // 댓글
+      commentEntity.depth = 0;
+      commentEntity.orderNumber = getPostData.postComments + 1; // 순서
+    } else {
+      // 부모 댓글 존재
+      const getParentCommentData = await this.commentRepository.findOne({
+        where: { id: commentDTO.parentComment },
+      });
+      commentEntity.isCommentForComment = true; // 대댓글
+      commentEntity.depth = getParentCommentData.depth + 1;
+      commentEntity.orderNumber = getParentCommentData.orderNumber + 1; // 순서
+    }
 
     this.logger.log('Create Comment : ', commentDTO);
     this.logger.log('Create Comment : ', commentDTO.id);
@@ -53,5 +78,42 @@ export class CommentService {
     );
 
     return createdComment;
+  }
+
+  /**
+   * Comment 조회
+   * @param
+   * @returns CommentDTO[]
+   */
+  async getCommentList(
+    postId: number,
+    postBoard: string,
+  ): Promise<CommentDTO[]> {
+    this.logger.log(`id : ${postId}`);
+    this.logger.log(`boardId : ${postBoard}`);
+
+    const getBoardData = await this.boardRepository
+      .createQueryBuilder('board')
+      .where('board_type = :type', {
+        type: postBoard,
+      })
+      .getOne();
+
+    // const commentEntities = await this.commentRepository.find({
+    //   where: { postId: postId, postBoardId: getBoardData.id },
+    //   order: { orderNumber: 'ASC' },
+    // });
+
+    const commentEntities = await this.commentRepository
+      .createQueryBuilder('comment')
+      .leftJoinAndSelect('comment.member', 'member')
+      .where('comment.postId = :postId', { postId: postId })
+      .andWhere('comment.postBoardId = :postBoardId', {
+        postBoardId: getBoardData.id,
+      })
+      .orderBy('comment.orderNumber', 'ASC')
+      .getMany();
+
+    return this.commentMapper.toDTOList(commentEntities);
   }
 }

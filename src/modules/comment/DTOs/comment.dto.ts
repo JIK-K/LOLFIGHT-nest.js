@@ -22,6 +22,9 @@ export class CommentDTO extends BaseDTO {
   deletedAt: Date;
 
   @IsOptional()
+  parentComment: string;
+
+  @IsOptional()
   isCommentForComment: boolean;
 
   @IsOptional()
@@ -34,5 +37,5 @@ export class CommentDTO extends BaseDTO {
   post: PostDTO;
 
   @IsOptional()
-  memberId: string;
+  writer: string;
 }
