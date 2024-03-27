@@ -38,4 +38,7 @@ export class CommentDTO extends BaseDTO {
 
   @IsOptional()
   writer: string;
+
+  @IsOptional()
+  memberId: string;
 }

@@ -14,9 +14,6 @@ import { Member } from 'src/modules/member/entities/member.entity';
 
 @Entity({
   name: 'comment',
-  orderBy: {
-    createdAt: 'DESC',
-  },
 })
 export class Comment extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')

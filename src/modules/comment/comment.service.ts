@@ -35,14 +35,14 @@ export class CommentService {
       .getOne();
 
     const getMemberData = await this.memberRepository.findOne({
-      where: { memberName: commentDTO.writer },
+      where: { memberId: commentDTO.memberId },
     });
-
-    this.logger.log('나여깄소 : ', getBoardData.id);
 
     const getPostData = await this.postRepository.findOne({
       where: { id: commentDTO.post.id },
     });
+
+    this.logger.log('나여깄소 : ', getMemberData.memberName);
 
     const commentEntity: Comment = Builder<Comment>()
       .id(commentDTO.id)
@@ -113,6 +113,8 @@ export class CommentService {
       })
       .orderBy('comment.orderNumber', 'ASC')
       .getMany();
+
+    this.logger.log('commentEntities : ', commentEntities);
 
     return this.commentMapper.toDTOList(commentEntities);
   }
