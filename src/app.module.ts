@@ -11,6 +11,7 @@ import { join } from 'path';
 import { BoardModule } from './modules/board/board.module';
 import { PostModule } from './modules/post/post.module';
 import { CommentModule } from './modules/comment/comment.module';
+import SocketGateway from './socket/socket.gateway';
 
 @Module({
   imports: [
@@ -27,6 +28,6 @@ import { CommentModule } from './modules/comment/comment.module';
     CommentModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, SocketGateway],
 })
 export class AppModule {}
