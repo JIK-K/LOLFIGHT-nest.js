@@ -1,5 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import {
+  ConnectedSocket,
+  MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
   OnGatewayInit,
@@ -22,7 +24,7 @@ export default class SocketGateway
   private logger: Logger = new Logger('FileEventsGateway');
 
   afterInit(server: any) {
-    this.logger.log('Socket DownloadFile server init ✅');
+    this.logger.log('Socket server init ✅');
   }
 
   handleDisconnect(client: any) {
@@ -31,8 +33,9 @@ export default class SocketGateway
 
   handleConnection(client: any, ...args: any[]) {
     const memberName = client.handshake.query.memberName;
-    const namespace = `member-${memberName}`;
-    console.log(namespace);
+    const guildName = client.handshake.query.guildName;
+    const namespace = `${guildName}-${memberName}`;
+
     if (!this.namespaces.has(namespace)) {
       this.namespaces.set(namespace, []);
     }
@@ -44,7 +47,20 @@ export default class SocketGateway
   }
 
   @SubscribeMessage('message')
-  handleMessage(client: any, payload: any): string {
-    return 'Hello world!';
+  handleMessage(
+    @ConnectedSocket() client: Socket,
+    @MessageBody()
+    messageData: { memberName: string; guildName: string; message: string },
+  ) {
+    const guildName = messageData.guildName;
+    const message = `[${messageData.memberName}]-${messageData.message}`;
+
+    this.namespaces.forEach((socketsInNamespace, namespace) => {
+      if (namespace.includes(guildName)) {
+        socketsInNamespace.forEach((socket) => {
+          socket.emit('message', message);
+        });
+      }
+    });
   }
 }
