@@ -32,7 +32,7 @@ export class Guild extends BaseEntity {
   @Column({ name: 'guild_description', nullable: true })
   guildDescription: string;
 
-  @Column({ name: 'guild_tier', default: '브론즈' })
+  @Column({ name: 'guild_tier', default: 'BRONZE' })
   guildTier: string;
 
   @Column({ name: 'guild_icon', nullable: true })
