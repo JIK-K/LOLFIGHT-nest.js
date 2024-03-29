@@ -34,15 +34,16 @@ export class CommentService {
       })
       .getOne();
 
-    const getMemberData = await this.memberRepository.findOne({
-      where: { memberId: commentDTO.memberId },
-    });
+    // const getMemberData = await this.memberRepository.findOne({
+    //   where: { memberId: commentDTO.memberId },
+    // });
 
     const getPostData = await this.postRepository.findOne({
       where: { id: commentDTO.post.id },
     });
 
-    this.logger.log('나여깄소 : ', getMemberData.memberName);
+    getPostData.postComments += 1;
+    await this.postRepository.save(getPostData);
 
     const commentEntity: Comment = Builder<Comment>()
       .id(commentDTO.id)
@@ -53,7 +54,7 @@ export class CommentService {
       .isCommentForComment(commentDTO.isCommentForComment)
       .postId(commentDTO.postId)
       .postBoardId(getBoardData.id)
-      .memberId(getMemberData.id)
+      .memberId(commentDTO.memberId)
       .build();
 
     if (commentDTO.parentComment == null) {
@@ -71,7 +72,6 @@ export class CommentService {
     }
 
     this.logger.log('Create Comment : ', commentDTO);
-    this.logger.log('Create Comment : ', commentDTO.id);
 
     const createdComment = this.commentMapper.toDTO(
       await this.commentRepository.save(commentEntity),

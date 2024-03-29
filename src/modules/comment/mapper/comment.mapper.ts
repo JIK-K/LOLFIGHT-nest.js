@@ -33,7 +33,7 @@ export class CommentMapper {
       .isCommentForComment(isCommentForComment)
       .postId(postId)
       .postBoardId(postBoardId)
-      .writer(member.memberName)
+      .writer(member?.memberName)
       .build();
   }
 
