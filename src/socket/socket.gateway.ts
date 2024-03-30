@@ -21,6 +21,7 @@ export default class SocketGateway
   constructor() {}
   @WebSocketServer() server: Server;
   private namespaces: Map<string, Socket[]> = new Map();
+  private onlineMembers: Set<string> = new Set();
   private logger: Logger = new Logger('FileEventsGateway');
 
   afterInit(server: any) {
@@ -60,6 +61,21 @@ export default class SocketGateway
         socketsInNamespace.forEach((socket) => {
           socket.emit('message', message);
         });
+      }
+    });
+  }
+
+  @SubscribeMessage('online')
+  handleOnlineMember(
+    @ConnectedSocket() clinet: Socket,
+    @MessageBody() data: { guildName: string },
+  ) {
+    this.namespaces.forEach((socketInNamespace, namespace) => {
+      if (namespace.includes(data.guildName)) {
+        this.onlineMembers.add(namespace.substring(data.guildName.length + 1));
+        console.log(this.onlineMembers);
+        const onlineMembersArray: string[] = Array.from(this.onlineMembers);
+        clinet.emit('online', onlineMembersArray);
       }
     });
   }
