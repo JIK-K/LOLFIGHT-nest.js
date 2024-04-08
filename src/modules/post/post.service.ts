@@ -97,7 +97,11 @@ export class PostService {
   async getPostList(board: string): Promise<PostDTO[]> {
     let postEntites: Post[];
     if (board == '전체') {
-      postEntites = await this.postRepository.find();
+      // postEntites = await this.postRepository.find();
+      postEntites = await this.postRepository
+        .createQueryBuilder('post')
+        .leftJoinAndSelect('post.member', 'member')
+        .getMany();
       this.logger.log('postEntites', postEntites);
     } else {
       this.logger.log('board', board);

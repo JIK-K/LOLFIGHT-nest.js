@@ -41,4 +41,7 @@ export class CommentDTO extends BaseDTO {
 
   @IsOptional()
   memberId: string;
+
+  @IsOptional()
+  commentDate: Date;
 }

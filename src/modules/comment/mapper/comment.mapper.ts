@@ -20,6 +20,7 @@ export class CommentMapper {
       isCommentForComment,
       postId,
       postBoardId,
+      createdAt: commentDate,
       member,
     } = commentEntity;
 
@@ -33,6 +34,7 @@ export class CommentMapper {
       .isCommentForComment(isCommentForComment)
       .postId(postId)
       .postBoardId(postBoardId)
+      .commentDate(commentDate)
       .writer(member?.memberName)
       .build();
   }

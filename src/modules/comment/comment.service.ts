@@ -63,12 +63,14 @@ export class CommentService {
       commentEntity.orderNumber = getPostData.postComments + 1; // 순서
     } else {
       // 부모 댓글 존재
+      this.logger.log('부모 댓글 존재@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
       const getParentCommentData = await this.commentRepository.findOne({
         where: { id: commentDTO.parentComment },
       });
       commentEntity.isCommentForComment = true; // 대댓글
       commentEntity.depth = getParentCommentData.depth + 1;
-      commentEntity.orderNumber = getParentCommentData.orderNumber + 1; // 순서
+      commentEntity.orderNumber = getParentCommentData.orderNumber; // 순서
+      commentEntity.parentComment = getParentCommentData;
     }
 
     this.logger.log('Create Comment : ', commentDTO);
@@ -104,6 +106,16 @@ export class CommentService {
     //   order: { orderNumber: 'ASC' },
     // });
 
+    // const commentEntities = await this.commentRepository
+    //   .createQueryBuilder('comment')
+    //   .leftJoinAndSelect('comment.member', 'member')
+    //   .where('comment.postId = :postId', { postId: postId })
+    //   .andWhere('comment.postBoardId = :postBoardId', {
+    //     postBoardId: getBoardData.id,
+    //   })
+    //   .orderBy('comment.orderNumber', 'ASC')
+    //   .getMany();
+
     const commentEntities = await this.commentRepository
       .createQueryBuilder('comment')
       .leftJoinAndSelect('comment.member', 'member')
@@ -112,6 +124,7 @@ export class CommentService {
         postBoardId: getBoardData.id,
       })
       .orderBy('comment.orderNumber', 'ASC')
+      .addOrderBy('comment.createdAt', 'ASC')
       .getMany();
 
     this.logger.log('commentEntities : ', commentEntities);
