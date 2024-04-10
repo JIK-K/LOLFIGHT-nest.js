@@ -10,6 +10,17 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { MemberDTO } from 'src/modules/member/DTOs/member.dto';
+
+interface FightingRoom {
+  Room: MemberDTO[];
+}
+interface WaitingRoom {
+  members: MemberDTO[];
+  roomName: string; //guildName-roomMaster의 방
+  memberCount: number;
+  status: string; //대기중 : "waiting", 진행중: "Fighting"
+}
 
 @WebSocketGateway(3001, {
   cors: { origin: '*' },
@@ -22,6 +33,10 @@ export default class SocketGateway
   @WebSocketServer() server: Server;
   private namespaces: Map<string, Socket[]> = new Map();
   private onlineMembers: Set<string> = new Set();
+
+  private guildWaitingRoom: Set<WaitingRoom> = new Set();
+  private fightGuilds: Array<FightingRoom[]> = new Array();
+
   private logger: Logger = new Logger('FileEventsGateway');
 
   afterInit(server: any) {
@@ -78,5 +93,28 @@ export default class SocketGateway
         clinet.emit('online', onlineMembersArray);
       }
     });
+  }
+
+  @SubscribeMessage('createRoom')
+  handleCreateRoom(
+    @ConnectedSocket() client: Socket,
+    @MessageBody()
+    roomData: {
+      member: MemberDTO;
+      roomName: string;
+      memberCount: number;
+      status: string;
+    },
+  ) {
+    const newRoom: WaitingRoom = {
+      members: [roomData.member],
+      roomName: roomData.member.memberGuild.guildName + '-' + roomData.roomName,
+      memberCount: roomData.memberCount,
+      status: roomData.status,
+    };
+
+    this.guildWaitingRoom.add(newRoom);
+    console.log(newRoom);
+    client.emit('createRoom', newRoom);
   }
 }
