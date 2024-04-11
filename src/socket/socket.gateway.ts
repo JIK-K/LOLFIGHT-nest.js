@@ -49,12 +49,10 @@ export default class SocketGateway
     const namespaceToRemove: string | undefined = Array.from(
       this.namespaces.keys(),
     ).find((namespace) => {
-      console.log(namespace);
       return namespace;
     });
 
     if (namespaceToRemove) {
-      console.log(namespaceToRemove.split('-')[1]);
       this.onlineMembers.delete(namespaceToRemove.split('-')[1]);
     }
   }
