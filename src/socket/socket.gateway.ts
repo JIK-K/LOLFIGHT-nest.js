@@ -45,6 +45,18 @@ export default class SocketGateway
 
   handleDisconnect(client: any) {
     this.logger.log(`Client Disconnected : ${client.id}`);
+
+    const namespaceToRemove: string | undefined = Array.from(
+      this.namespaces.keys(),
+    ).find((namespace) => {
+      console.log(namespace);
+      return namespace;
+    });
+
+    if (namespaceToRemove) {
+      console.log(namespaceToRemove.split('-')[1]);
+      this.onlineMembers.delete(namespaceToRemove.split('-')[1]);
+    }
   }
 
   handleConnection(client: any, ...args: any[]) {
@@ -60,6 +72,7 @@ export default class SocketGateway
     this.logger.log(
       `Client Connected : ${client.id} ${client.request.connection.remoteAddress}`,
     );
+    console.log(this.onlineMembers);
   }
 
   @SubscribeMessage('message')
