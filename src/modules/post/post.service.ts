@@ -97,7 +97,11 @@ export class PostService {
   async getPostList(board: string): Promise<PostDTO[]> {
     let postEntites: Post[];
     if (board == '전체') {
-      postEntites = await this.postRepository.find();
+      // postEntites = await this.postRepository.find();
+      postEntites = await this.postRepository
+        .createQueryBuilder('post')
+        .leftJoinAndSelect('post.member', 'member')
+        .getMany();
       this.logger.log('postEntites', postEntites);
     } else {
       this.logger.log('board', board);
@@ -112,6 +116,7 @@ export class PostService {
 
       postEntites = await this.postRepository
         .createQueryBuilder('post')
+        .leftJoinAndSelect('post.member', 'member')
         .where('board_id = :id', { id: getBoardData.id })
         .getMany();
 
@@ -139,11 +144,15 @@ export class PostService {
 
     const postEntity = await this.postRepository
       .createQueryBuilder('post')
-      .where('board_id = :id', { id: getBoardData.id })
-      .andWhere('id = :postId', { postId: postId })
+      .leftJoinAndSelect('post.member', 'member')
+      .where('post.board_id = :id', { id: getBoardData.id })
+      .andWhere('post.id = :postId', { postId: postId })
       .getOne();
 
     this.logger.log('postEntity', postEntity);
-    return await this.postMapper.toDTO(postEntity);
+    const postDTO = await this.postMapper.toDTO(postEntity);
+    postDTO.postBoard = board;
+
+    return await postDTO;
   }
 }

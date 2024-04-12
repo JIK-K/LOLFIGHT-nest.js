@@ -16,7 +16,7 @@ export class PostDTO extends BaseDTO {
   postWriter: string;
 
   @IsOptional()
-  postDate: string;
+  postDate: Date;
 
   @IsOptional()
   postViews: number;

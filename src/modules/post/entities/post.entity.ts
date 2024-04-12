@@ -8,6 +8,7 @@ import {
   PrimaryColumn,
 } from 'typeorm';
 import { Board } from '../../board/entities/board.entity';
+import { Member } from 'src/modules/member/entities/member.entity';
 
 @Entity({
   name: 'post',
@@ -43,4 +44,8 @@ export class Post extends BaseEntity {
   @ManyToOne(() => Board, (board) => board.id)
   @JoinColumn({ name: 'board_id' })
   board: Board;
+
+  @ManyToOne(() => Member, (member) => member.id)
+  @JoinColumn({ name: 'post_writer' })
+  member: Member;
 }

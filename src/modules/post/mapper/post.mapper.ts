@@ -18,6 +18,8 @@ export class PostMapper {
       postViews,
       postLikes,
       postComments,
+      createdAt: postDate,
+      member,
     } = postEntity;
 
     return Builder<PostDTO>()
@@ -28,6 +30,8 @@ export class PostMapper {
       .postViews(postViews)
       .postLikes(postLikes)
       .postComments(postComments)
+      .postDate(postDate)
+      .postWriter(member.memberName)
       .build();
   }
 

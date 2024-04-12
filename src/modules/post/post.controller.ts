@@ -36,7 +36,7 @@ export class PostController {
     file: Express.Multer.File,
     @Body() postDTO: PostDTO,
   ): Promise<ResponseDTO<PostDTO>> {
-    this.logger.log('postDTO', postDTO.postTitle);
+    this.logger.log('postDTO', postDTO);
     // this.logger.log(`Create Post : ${postDTO}`);
 
     return ResponseUtil.makeSuccessResponse(

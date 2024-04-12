@@ -6,10 +6,10 @@ import { GuildModule } from './modules/guild/guild.module';
 import { MysqlModule } from './mysql/mysql.module';
 import { ConfigModule } from '@nestjs/config';
 import { MailModule } from './modules/mail/mail.module';
-import { ServeStaticModule } from '@nestjs/serve-static';
-import { join } from 'path';
 import { BoardModule } from './modules/board/board.module';
 import { PostModule } from './modules/post/post.module';
+import { CommentModule } from './modules/comment/comment.module';
+import { SocketModule } from './socket/socket.module';
 
 @Module({
   imports: [
@@ -23,6 +23,8 @@ import { PostModule } from './modules/post/post.module';
     MailModule,
     BoardModule,
     PostModule,
+    CommentModule,
+    SocketModule,
   ],
   controllers: [AppController],
   providers: [AppService],
