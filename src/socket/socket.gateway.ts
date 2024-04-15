@@ -22,6 +22,15 @@ interface WaitingRoom {
   status: string; //대기중 : "waiting", 진행중: "Fighting"
 }
 
+interface testRoom {
+  name: string;
+  person: string[];
+}
+interface testFightRoom {
+  team1: testRoom;
+  team2: testRoom;
+}
+
 @WebSocketGateway(3001, {
   cors: { origin: '*' },
 })
@@ -36,6 +45,9 @@ export default class SocketGateway
 
   private guildWaitingRoom: Set<WaitingRoom> = new Set();
   private fightGuilds: Array<FightingRoom[]> = new Array();
+
+  private testWaitRoom: Set<testRoom> = new Set();
+  private testFightArray: Array<testFightRoom[]> = new Array();
 
   private logger: Logger = new Logger('FileEventsGateway');
 
@@ -110,22 +122,117 @@ export default class SocketGateway
   handleCreateRoom(
     @ConnectedSocket() client: Socket,
     @MessageBody()
-    roomData: {
-      member: MemberDTO;
+    data: {
+      name: string;
+      person: string;
+    },
+    // roomData: {
+    //   member: MemberDTO;
+    //   roomName: string;
+    //   memberCount: number;
+    //   status: string;
+    // },
+  ) {
+    // const newRoom: WaitingRoom = {
+    //   members: [roomData.member],
+    //   roomName: roomData.member.memberGuild.guildName + '-' + roomData.roomName,
+    //   memberCount: roomData.memberCount,
+    //   status: roomData.status,
+    // };
+
+    let isDuplicate = false;
+
+    const testroom: testRoom = {
+      name: data.name,
+      person: [data.person],
+    };
+    if (testroom.name != undefined && testroom.person != undefined) {
+      const exist = this.testWaitRoom.forEach((room) => {
+        if (room.name == data.name) {
+          isDuplicate = true;
+        }
+      });
+      if (!isDuplicate) {
+        this.testWaitRoom.add(testroom);
+        console.log(this.testWaitRoom);
+      }
+    }
+
+    // this.guildWaitingRoom.add(newRoom);
+    // console.log(newRoom);
+    // client.emit('createRoom', newRoom);
+  }
+
+  @SubscribeMessage('joinRoom')
+  handleJoinRoom(
+    @ConnectedSocket() client: Socket,
+    @MessageBody()
+    data: {
       roomName: string;
-      memberCount: number;
-      status: string;
+      person: string;
     },
   ) {
-    const newRoom: WaitingRoom = {
-      members: [roomData.member],
-      roomName: roomData.member.memberGuild.guildName + '-' + roomData.roomName,
-      memberCount: roomData.memberCount,
-      status: roomData.status,
-    };
+    this.testWaitRoom.forEach((room) => {
+      if (room.name == data.roomName) {
+        room.person.push(data.person);
+      }
+    });
+    const yaya: testRoom[] = Array.from(this.testWaitRoom);
+    console.log('joinRoom', yaya);
+  }
 
-    this.guildWaitingRoom.add(newRoom);
-    console.log(newRoom);
-    client.emit('createRoom', newRoom);
+  @SubscribeMessage('searchFight')
+  handleSearchRoom(
+    @ConnectedSocket() client: Socket,
+    @MessageBody()
+    data: {
+      roomName: string;
+    },
+  ) {
+    let team1: testRoom;
+    for (const room of this.testWaitRoom) {
+      if (room.name === data.roomName) {
+        team1 = room;
+        break;
+      }
+    }
+
+    // 비어있는 team2를 찾습니다.
+    const emptyIndex = this.testFightArray.findIndex(
+      (fightRoom) => !fightRoom[0]?.team2,
+    );
+    if (emptyIndex !== -1) {
+      // 비어있는 team2에 정보를 추가합니다.
+      this.testFightArray[emptyIndex][0].team2 = team1;
+      console.log('매칭완료 \n', this.testFightArray);
+    } else {
+      // 비어있는 team2가 없는 경우 새로운 배열에 추가합니다.
+      const fightRoom: testFightRoom = {
+        team1: team1,
+        team2: null,
+      };
+      this.testFightArray.push([fightRoom]);
+      console.log('아무도없을떄 \n', this.testFightArray);
+    }
+  }
+
+  @SubscribeMessage('cancelSearch')
+  handlecancelSearch(
+    @ConnectedSocket() client: Socket,
+    @MessageBody()
+    data: {
+      roomName: string;
+    },
+  ) {
+    const index = this.testFightArray.findIndex(
+      (testfight) => testfight[0]?.team1.name == data.roomName,
+    );
+    if (index !== -1) {
+      this.testFightArray.splice(index, 1);
+      console.log(data.roomName + ': 매칭취소');
+      console.log(this.testFightArray);
+    } else {
+      console.log('이거뜨면 사고라고 보면된다.');
+    }
   }
 }
