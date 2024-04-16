@@ -5,11 +5,13 @@ import { PostMapper } from './mapper/post.mapper';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Post } from './entities/post.entity';
 import { Board } from '../board/entities/board.entity';
+import { Member } from '../member/entities/member.entity';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Post]),
     TypeOrmModule.forFeature([Board]),
+    TypeOrmModule.forFeature([Member]),
   ],
   controllers: [PostController],
   providers: [PostService, PostMapper],
