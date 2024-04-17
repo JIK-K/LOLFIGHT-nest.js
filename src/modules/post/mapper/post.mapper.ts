@@ -14,7 +14,7 @@ export class PostMapper {
       id,
       postTitle,
       postContent,
-      postWriter,
+      // postWriter,
       postViews,
       postLikes,
       postComments,
@@ -22,17 +22,19 @@ export class PostMapper {
       member,
     } = postEntity;
 
-    return Builder<PostDTO>()
-      .id(id)
-      .postTitle(postTitle)
-      .postContent(postContent)
-      .postWriter(postWriter)
-      .postViews(postViews)
-      .postLikes(postLikes)
-      .postComments(postComments)
-      .postDate(postDate)
-      .postWriter(member.memberName)
-      .build();
+    return (
+      Builder<PostDTO>()
+        .id(id)
+        .postTitle(postTitle)
+        .postContent(postContent)
+        // .postWriter(postWriter)
+        .postViews(postViews)
+        .postLikes(postLikes)
+        .postComments(postComments)
+        .postDate(postDate)
+        .postWriter(member.memberName)
+        .build()
+    );
   }
 
   toDTOList(postEntites: Post[]): PostDTO[] {
