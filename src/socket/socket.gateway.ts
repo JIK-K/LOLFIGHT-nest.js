@@ -11,6 +11,7 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { MemberDTO } from 'src/modules/member/DTOs/member.dto';
+import { CommonUtil } from 'src/utils/common.util';
 
 interface FightingRoom {
   Room: MemberDTO[];
@@ -27,8 +28,10 @@ interface testRoom {
   person: string[];
 }
 interface testFightRoom {
+  fightRoom: string;
   team1: testRoom;
   team2: testRoom;
+  readyCount: number;
 }
 
 @WebSocketGateway(3001, {
@@ -47,7 +50,7 @@ export default class SocketGateway
   private fightGuilds: Array<FightingRoom[]> = new Array();
 
   private testWaitRoom: Set<testRoom> = new Set();
-  private testFightArray: Array<testFightRoom[]> = new Array();
+  private testFightArray: Array<testFightRoom> = new Array();
 
   private logger: Logger = new Logger('FileEventsGateway');
 
@@ -118,6 +121,11 @@ export default class SocketGateway
     });
   }
 
+  /**
+   * 길드전 방 생성
+   * @param client
+   * @param data
+   */
   @SubscribeMessage('createRoom')
   handleCreateRoom(
     @ConnectedSocket() client: Socket,
@@ -163,6 +171,11 @@ export default class SocketGateway
     // client.emit('createRoom', newRoom);
   }
 
+  /**
+   * 길드전 방 참가
+   * @param client
+   * @param data
+   */
   @SubscribeMessage('joinRoom')
   handleJoinRoom(
     @ConnectedSocket() client: Socket,
@@ -181,6 +194,11 @@ export default class SocketGateway
     console.log('joinRoom', yaya);
   }
 
+  /**
+   * 길드전 매칭
+   * @param client
+   * @param data
+   */
   @SubscribeMessage('searchFight')
   handleSearchRoom(
     @ConnectedSocket() client: Socket,
@@ -189,33 +207,51 @@ export default class SocketGateway
       roomName: string;
     },
   ) {
-    let team1: testRoom;
+    let me: testRoom;
     for (const room of this.testWaitRoom) {
       if (room.name === data.roomName) {
-        team1 = room;
+        me = room;
         break;
       }
     }
 
-    // 비어있는 team2를 찾습니다.
-    const emptyIndex = this.testFightArray.findIndex(
-      (fightRoom) => !fightRoom[0]?.team2,
-    );
-    if (emptyIndex !== -1) {
-      // 비어있는 team2에 정보를 추가합니다.
-      this.testFightArray[emptyIndex][0].team2 = team1;
-      console.log('매칭완료 \n', this.testFightArray);
+    // 내가 속한 방을 찾는데 team1이랑 team2가 다 있다면 => 다시 돌린다.
+    const existingRoomIndex = this.testFightArray.findIndex((fightRoom) => {
+      return (
+        (fightRoom.team1 === me || fightRoom.team2 === me) &&
+        fightRoom.team1 &&
+        fightRoom.team2
+      );
+    });
+
+    if (existingRoomIndex !== -1) {
+      //다시 돌리는 로직 => 나를 현재 방에서 제외한후 상대가 team2라면 team1으로 옮기고 나는 다시 team2가 비어있는 방을 찾는다.
+
+      //내가 team1이라면
+      if (this.testFightArray[existingRoomIndex].team1.name == me.name) {
+        console.log('다시돌린다. 내가 team1일때');
+        this.testFightArray[existingRoomIndex].team1 =
+          this.testFightArray[existingRoomIndex].team2;
+        this.testFightArray[existingRoomIndex].team2 = null;
+
+        this.matchMaking(me);
+      } else {
+        console.log('다시돌린다. 내가 team2일때');
+        this.testFightArray[existingRoomIndex].team2 = null;
+
+        this.matchMaking(me);
+      }
     } else {
-      // 비어있는 team2가 없는 경우 새로운 배열에 추가합니다.
-      const fightRoom: testFightRoom = {
-        team1: team1,
-        team2: null,
-      };
-      this.testFightArray.push([fightRoom]);
-      console.log('아무도없을떄 \n', this.testFightArray);
+      //만약 team2가 비어있는 방이있다? => 누군가 매칭을 돌리고 있다.
+      this.matchMaking(me);
     }
   }
 
+  /**
+   * 매칭 취소 =? 방 폭파로 해야겠다
+   * @param client
+   * @param data
+   */
   @SubscribeMessage('cancelSearch')
   handlecancelSearch(
     @ConnectedSocket() client: Socket,
@@ -225,14 +261,104 @@ export default class SocketGateway
     },
   ) {
     const index = this.testFightArray.findIndex(
-      (testfight) => testfight[0]?.team1.name == data.roomName,
+      (testfight) => testfight.team1.name === data.roomName,
     );
     if (index !== -1) {
       this.testFightArray.splice(index, 1);
       console.log(data.roomName + ': 매칭취소');
       console.log(this.testFightArray);
     } else {
-      console.log('이거뜨면 사고라고 보면된다.');
+      console.log('이거 뜨면 사고라고 보면 됩니다.');
+    }
+  }
+
+  @SubscribeMessage('readyFight')
+  handleReadyFight(
+    @ConnectedSocket() client: Socket,
+    @MessageBody()
+    data: {
+      fightRoom: string;
+    },
+  ) {
+    for (const fightRoom of this.testFightArray) {
+      if (fightRoom.fightRoom === data.fightRoom) {
+        fightRoom.readyCount++;
+      }
+    }
+  }
+
+  @SubscribeMessage('cancelReady')
+  handleCancelReady(
+    @ConnectedSocket() client: Socket,
+    @MessageBody()
+    data: {
+      fightRoom: string;
+    },
+  ) {
+    for (const fightRoom of this.testFightArray) {
+      if (fightRoom.fightRoom === data.fightRoom) {
+        fightRoom.readyCount--;
+      }
+    }
+  }
+
+  @SubscribeMessage('startFight')
+  handleStartFight(
+    @ConnectedSocket() client: Socket,
+    @MessageBody()
+    data: {
+      fightRoom: string;
+    },
+  ) {
+    for (const fightRoom of this.testFightArray) {
+      if (fightRoom.fightRoom === data.fightRoom) {
+        if (fightRoom.readyCount === 10) {
+          console.log(
+            '시작한다 : ' +
+              fightRoom.fightRoom +
+              '팀1 : ' +
+              fightRoom.team1.name +
+              '팀2 : ' +
+              fightRoom.team2.name,
+          );
+        } else {
+          console.log(
+            '아직 10명다 준비안함 ReadyCount : ' + fightRoom.readyCount,
+          );
+        }
+      }
+    }
+  }
+
+  //========================================================================//
+  //Function
+  //========================================================================//
+  matchMaking(me: testRoom) {
+    const emptyIndexs: number[] = [];
+    // team2가 비어있는 방의 인덱스를 찾아 emptyIndices 배열에 추가
+    this.testFightArray.forEach((fightRoom, index) => {
+      if (!fightRoom.team2) {
+        emptyIndexs.push(index);
+      }
+    });
+    const emptyIndex =
+      emptyIndexs[Math.floor(Math.random() * emptyIndexs.length)];
+
+    if (emptyIndexs.length > 0) {
+      //내가 돌리고있는 길드의 team2로 들어간다.
+      this.testFightArray[emptyIndex].team2 = me;
+      console.log('매칭완료 \n', this.testFightArray);
+    } else {
+      //아무도 없으면 내가 방을 판다.
+      const randomString = CommonUtil.uuidv4();
+      const fightRoom: testFightRoom = {
+        fightRoom: randomString,
+        team1: me,
+        team2: null,
+        readyCount: 0,
+      };
+      this.testFightArray.push(fightRoom);
+      console.log('빈 방 생성 \n', this.testFightArray);
     }
   }
 }
