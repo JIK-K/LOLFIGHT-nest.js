@@ -14,13 +14,21 @@ import { MemberDTO } from 'src/modules/member/DTOs/member.dto';
 import { CommonUtil } from 'src/utils/common.util';
 
 interface FightingRoom {
-  Room: MemberDTO[];
+  fightRoomName: string;
+  team1: WaitingRoom;
+  team2: WaitingRoom;
+  readyCount: number;
+  status: string;
 }
 interface WaitingRoom {
-  members: MemberDTO[];
+  members: MatchMembers[];
   roomName: string; //guildName-roomMaster의 방
-  memberCount: number;
+  memberCount: number; //5명
   status: string; //대기중 : "waiting", 진행중: "Fighting"
+}
+interface MatchMembers {
+  member: MemberDTO;
+  isReady: boolean;
 }
 
 interface testRoom {
@@ -46,7 +54,7 @@ export default class SocketGateway
   private namespaces: Map<string, Socket[]> = new Map();
   private onlineMembers: Set<string> = new Set();
 
-  private guildWaitingRoom: Set<WaitingRoom> = new Set();
+  private guildWaitingRoom: Array<WaitingRoom> = new Array();
   private fightGuilds: Array<FightingRoom[]> = new Array();
 
   private testWaitRoom: Set<testRoom> = new Set();
@@ -130,45 +138,72 @@ export default class SocketGateway
   handleCreateRoom(
     @ConnectedSocket() client: Socket,
     @MessageBody()
-    data: {
-      name: string;
-      person: string;
+    roomData: {
+      members: MatchMembers;
+      roomName: string;
+      memberCount: number;
+      status: string;
     },
-    // roomData: {
-    //   member: MemberDTO;
-    //   roomName: string;
-    //   memberCount: number;
-    //   status: string;
-    // },
   ) {
-    // const newRoom: WaitingRoom = {
-    //   members: [roomData.member],
-    //   roomName: roomData.member.memberGuild.guildName + '-' + roomData.roomName,
-    //   memberCount: roomData.memberCount,
-    //   status: roomData.status,
-    // };
+    const newRoom: WaitingRoom = {
+      members: [roomData.members],
+      roomName:
+        roomData.members.member.memberGuild.guildName + '-' + roomData.roomName,
+      memberCount: roomData.memberCount,
+      status: roomData.status,
+    };
 
     let isDuplicate = false;
 
-    const testroom: testRoom = {
-      name: data.name,
-      person: [data.person],
-    };
-    if (testroom.name != undefined && testroom.person != undefined) {
-      const exist = this.testWaitRoom.forEach((room) => {
-        if (room.name == data.name) {
+    if (newRoom != undefined) {
+      this.guildWaitingRoom.forEach((room) => {
+        if (
+          room.roomName ===
+          roomData.members.member.memberGuild.guildName +
+            '-' +
+            roomData.roomName
+        ) {
           isDuplicate = true;
         }
       });
+
       if (!isDuplicate) {
-        this.testWaitRoom.add(testroom);
-        console.log(this.testWaitRoom);
+        client.join(newRoom.roomName);
+        this.guildWaitingRoom.push(newRoom);
+        console.log(this.guildWaitingRoom);
+        client.emit('createRoom', newRoom);
       }
     }
+  }
 
-    // this.guildWaitingRoom.add(newRoom);
-    // console.log(newRoom);
-    // client.emit('createRoom', newRoom);
+  /**
+   * 길드전 방 삭제
+   * @param client
+   * @param data
+   */
+  @SubscribeMessage('deleteRoom')
+  handleDeleteRoom(
+    @ConnectedSocket() client: Socket,
+    @MessageBody()
+    data: {
+      roomName: string;
+    },
+  ) {
+    this.testWaitRoom.forEach((room) => {
+      if (room.name === data.roomName) {
+        this.testWaitRoom.delete(room);
+      }
+    });
+    this.testFightArray.forEach((room, index) => {
+      if (
+        room.team1.name === data.roomName ||
+        room.team2.name === data.roomName
+      ) {
+        this.testFightArray.splice(index, 1);
+      }
+    });
+    console.log(this.testFightArray);
+    console.log(this.testWaitRoom);
   }
 
   /**
@@ -182,16 +217,20 @@ export default class SocketGateway
     @MessageBody()
     data: {
       roomName: string;
-      person: string;
+      matchMember: MatchMembers;
     },
   ) {
-    this.testWaitRoom.forEach((room) => {
-      if (room.name == data.roomName) {
-        room.person.push(data.person);
-      }
-    });
-    const yaya: testRoom[] = Array.from(this.testWaitRoom);
-    console.log('joinRoom', yaya);
+    const room = this.guildWaitingRoom.find(
+      (room) => room.roomName === data.roomName,
+    );
+    if (room) {
+      room.members.push(data.matchMember);
+      room.memberCount++;
+      client.join(room.roomName);
+      client.emit('joinRoom', room);
+      client.to(data.roomName).emit('joinRoom', room);
+      console.log(room);
+    }
   }
 
   /**
@@ -248,7 +287,7 @@ export default class SocketGateway
   }
 
   /**
-   * 매칭 취소 =? 방 폭파로 해야겠다
+   * 매칭 취소
    * @param client
    * @param data
    */
@@ -272,6 +311,11 @@ export default class SocketGateway
     }
   }
 
+  /**
+   * 길드 내전 준비 완료
+   * @param client
+   * @param data
+   */
   @SubscribeMessage('readyFight')
   handleReadyFight(
     @ConnectedSocket() client: Socket,
@@ -287,6 +331,11 @@ export default class SocketGateway
     }
   }
 
+  /**
+   * 길드 내전 준비 취소
+   * @param client
+   * @param data
+   */
   @SubscribeMessage('cancelReady')
   handleCancelReady(
     @ConnectedSocket() client: Socket,
@@ -302,6 +351,11 @@ export default class SocketGateway
     }
   }
 
+  /**
+   * 긷드 내전 시작
+   * @param client
+   * @param data
+   */
   @SubscribeMessage('startFight')
   handleStartFight(
     @ConnectedSocket() client: Socket,
@@ -328,6 +382,26 @@ export default class SocketGateway
         }
       }
     }
+  }
+
+  /**
+   * 길드 내전방 리스트
+   * @param client
+   * @param data
+   */
+  @SubscribeMessage('roomList')
+  handleRoomList(
+    @ConnectedSocket() client: Socket,
+    @MessageBody()
+    data: {
+      guildName: string;
+    },
+  ) {
+    const guildWaitingList = Array.from(this.guildWaitingRoom).filter((room) =>
+      room.roomName.startsWith(data.guildName + '-'),
+    );
+    console.log('이거맞음?', guildWaitingList);
+    client.emit('roomList', guildWaitingList);
   }
 
   //========================================================================//
