@@ -9,6 +9,7 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
+import e from 'express';
 import { Server, Socket } from 'socket.io';
 import { MemberDTO } from 'src/modules/member/DTOs/member.dto';
 import { CommonUtil } from 'src/utils/common.util';
@@ -181,29 +182,42 @@ export default class SocketGateway
    * @param client
    * @param data
    */
-  @SubscribeMessage('deleteRoom')
-  handleDeleteRoom(
+  @SubscribeMessage('leaveRoom')
+  handleLeaveRoom(
     @ConnectedSocket() client: Socket,
     @MessageBody()
     data: {
       roomName: string;
+      matchMember: MatchMembers;
     },
   ) {
-    this.testWaitRoom.forEach((room) => {
-      if (room.name === data.roomName) {
-        this.testWaitRoom.delete(room);
+    const roomIndex = this.guildWaitingRoom.findIndex(
+      (room) => room.roomName === data.roomName,
+    );
+
+    const room = this.guildWaitingRoom[roomIndex];
+
+    if (room) {
+      if (room.memberCount === 1) {
+        this.guildWaitingRoom.splice(roomIndex, 1);
+        client.leave(room.roomName);
+      } else if (room.roomName.includes(data.matchMember.member.memberName)) {
+        client.to(room.roomName).emit('leaveRoom', null);
+
+        client.leave(room.roomName);
+
+        this.guildWaitingRoom.splice(roomIndex, 1);
+      } else {
+        room.members = room.members.filter(
+          (members) =>
+            members.member.memberName != data.matchMember.member.memberName,
+        );
+        room.memberCount--;
+
+        client.leave(room.roomName);
+        client.to(room.roomName).emit('leaveRoom', room);
       }
-    });
-    this.testFightArray.forEach((room, index) => {
-      if (
-        room.team1.name === data.roomName ||
-        room.team2.name === data.roomName
-      ) {
-        this.testFightArray.splice(index, 1);
-      }
-    });
-    console.log(this.testFightArray);
-    console.log(this.testWaitRoom);
+    }
   }
 
   /**
@@ -224,12 +238,18 @@ export default class SocketGateway
       (room) => room.roomName === data.roomName,
     );
     if (room) {
-      room.members.push(data.matchMember);
-      room.memberCount++;
-      client.join(room.roomName);
-      client.emit('joinRoom', room);
-      client.to(data.roomName).emit('joinRoom', room);
-      console.log(room);
+      if (room.memberCount < 5) {
+        room.members.push(data.matchMember);
+        room.memberCount++;
+        client.join(room.roomName);
+        client.emit('joinRoom', room);
+        client.to(data.roomName).emit('joinRoom', room);
+
+        console.log(room);
+      } else {
+        console.log('Room is Full');
+        client.emit('joinRoom', 'full');
+      }
     }
   }
 
@@ -400,7 +420,7 @@ export default class SocketGateway
     const guildWaitingList = Array.from(this.guildWaitingRoom).filter((room) =>
       room.roomName.startsWith(data.guildName + '-'),
     );
-    console.log('이거맞음?', guildWaitingList);
+    console.log('Waiting Room List : ', guildWaitingList);
     client.emit('roomList', guildWaitingList);
   }
 
