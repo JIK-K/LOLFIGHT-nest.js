@@ -29,8 +29,8 @@ export class Post extends BaseEntity {
   @Column({ name: 'post_content' })
   postContent: string;
 
-  @Column({ name: 'post_writer' })
-  postWriter: string;
+  // @Column({ name: 'post_writer' })
+  // postWriter: string;
 
   @Column({ name: 'post_views', default: 0 })
   postViews: number;

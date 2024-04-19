@@ -1,7 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Post } from './entities/post.entity';
-import { Repository } from 'typeorm';
+import { Member } from '../member/entities/member.entity';
+import { In, Repository } from 'typeorm';
 import { PostMapper } from './mapper/post.mapper';
 import { PostDTO } from './DTOs/post.dto';
 import { Builder } from 'builder-pattern';
@@ -22,6 +23,7 @@ export class PostService {
     @InjectRepository(Post) private postRepository: Repository<Post>,
     private postMapper: PostMapper,
     @InjectRepository(Board) private boardRepository: Repository<Board>,
+    @InjectRepository(Member) private memberRepository: Repository<Member>,
   ) {}
 
   private logger: Logger = new Logger();
@@ -39,11 +41,15 @@ export class PostService {
       })
       .getOne();
 
+    const getMemberData = await this.memberRepository.findOne({
+      where: { memberName: postDTO.postWriter },
+    });
+
     const postEntity: Post = Builder<Post>()
       .id(postDTO.id)
       .postTitle(postDTO.postTitle)
       .postContent(postDTO.postContent)
-      .postWriter(postDTO.postWriter)
+      .member(getMemberData)
       .postViews(postDTO.postViews)
       .postLikes(postDTO.postLikes)
       .postComments(postDTO.postComments)
