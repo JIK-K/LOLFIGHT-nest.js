@@ -16,6 +16,8 @@ import {
   unlinkSync,
   mkdirSync,
 } from 'fs';
+import { PostLikeDTO } from './DTOs/post_like.dto';
+import { PostLike } from './entities/post_like.entity';
 
 @Injectable()
 export class PostService {
@@ -24,6 +26,8 @@ export class PostService {
     private postMapper: PostMapper,
     @InjectRepository(Board) private boardRepository: Repository<Board>,
     @InjectRepository(Member) private memberRepository: Repository<Member>,
+    @InjectRepository(PostLike)
+    private postLikeRepository: Repository<PostLike>,
   ) {}
 
   private logger: Logger = new Logger();
@@ -160,5 +164,36 @@ export class PostService {
     postDTO.postBoard = board;
 
     return await postDTO;
+  }
+
+  /**
+   * Post 추천수 증가
+   * @param postId
+   * @returns
+   */
+  async likePost(postDTO: PostDTO, memberId: string): Promise<PostDTO> {
+    const getBoardData = await this.boardRepository
+      .createQueryBuilder('board')
+      .where('board_type = :type', {
+        type: postDTO.postBoard,
+      })
+      .getOne();
+
+    const getMemberData = await this.memberRepository.findOne({
+      where: { id: memberId },
+    });
+
+    const postEntity = await this.postRepository.findOne({
+      where: { id: postDTO.id, boardId: getBoardData.id },
+    });
+
+    const postLikeEntity = Builder<PostLike>()
+      .post(postEntity)
+      .member(getMemberData)
+      .build();
+
+    await this.postLikeRepository.save(postLikeEntity);
+
+    return this.postMapper.toDTO(await this.postRepository.save(postEntity));
   }
 }
