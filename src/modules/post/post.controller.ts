@@ -15,6 +15,7 @@ import { ResponseDTO } from 'src/common/DTOs/response.dto';
 import { ResponseUtil } from 'src/utils/response.util';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { multerConfig } from 'src/common/configs/multer.config';
+import { PostLikeDTO } from './DTOs/post_like.dto';
 
 @Controller('post')
 export class PostController {
@@ -87,6 +88,22 @@ export class PostController {
     this.logger.log(`Get Post : ${board}, ${postId}`);
     return ResponseUtil.makeSuccessResponse(
       await this.postService.getPost(board, postId),
+    );
+  }
+
+  /**
+   * Post 추천수 증가
+   * @param postId
+   * @returns
+   */
+  @Post('/like')
+  async likePost(
+    @Body() postDTO: PostDTO,
+    @Body() memberId: string,
+  ): Promise<ResponseDTO<PostDTO>> {
+    this.logger.log(`Like Post : ${postDTO}`);
+    return ResponseUtil.makeSuccessResponse(
+      await this.postService.likePost(postDTO, memberId),
     );
   }
 }
