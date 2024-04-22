@@ -98,10 +98,10 @@ export class PostController {
    */
   @Post('/like')
   async likePost(
-    @Body() postDTO: PostDTO,
-    @Body() memberId: string,
+    @Body() body: { postDTO: PostDTO; memberId: string },
   ): Promise<ResponseDTO<PostDTO>> {
-    this.logger.log(`Like Post : ${postDTO}`);
+    const { postDTO, memberId } = body;
+    this.logger.log(`Like Post : ${postDTO.id}`);
     return ResponseUtil.makeSuccessResponse(
       await this.postService.likePost(postDTO, memberId),
     );

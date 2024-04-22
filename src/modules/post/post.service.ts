@@ -69,6 +69,11 @@ export class PostService {
     return createdPost;
   }
 
+  /**
+   * Post 이미지 저장
+   * @param
+   * @returns
+   */
   async saveImage(image: Express.Multer.File): Promise<string> {
     return new Promise<string>((resolve, reject) => {
       let postImagePath: string | undefined;
@@ -111,6 +116,7 @@ export class PostService {
       postEntites = await this.postRepository
         .createQueryBuilder('post')
         .leftJoinAndSelect('post.member', 'member')
+        .leftJoinAndSelect('post.board', 'board')
         .getMany();
       this.logger.log('postEntites', postEntites);
     } else {
@@ -127,6 +133,7 @@ export class PostService {
       postEntites = await this.postRepository
         .createQueryBuilder('post')
         .leftJoinAndSelect('post.member', 'member')
+        .leftJoinAndSelect('post.board', 'board')
         .where('board_id = :id', { id: getBoardData.id })
         .getMany();
 
@@ -155,6 +162,7 @@ export class PostService {
     const postEntity = await this.postRepository
       .createQueryBuilder('post')
       .leftJoinAndSelect('post.member', 'member')
+      .leftJoinAndSelect('post.board', 'board')
       .where('post.board_id = :id', { id: getBoardData.id })
       .andWhere('post.id = :postId', { postId: postId })
       .getOne();
@@ -183,14 +191,26 @@ export class PostService {
       where: { id: memberId },
     });
 
-    const postEntity = await this.postRepository.findOne({
-      where: { id: postDTO.id, boardId: getBoardData.id },
-    });
+    // const postEntity = await this.postRepository.findOne({
+    //   where: { id: postDTO.id, boardId: getBoardData.id },
+    // });
+
+    const postEntity = await this.postRepository
+      .createQueryBuilder('post')
+      .leftJoinAndSelect('post.board', 'board')
+      .leftJoinAndSelect('post.member', 'member')
+      .where('post.id = :postId', { postId: postDTO.id })
+      .andWhere('board.id = :boardId', { boardId: getBoardData.id })
+      .getOne();
+
+    postEntity.postLikes += 1;
 
     const postLikeEntity = Builder<PostLike>()
       .post(postEntity)
       .member(getMemberData)
       .build();
+
+    this.logger.log('postEntity', postEntity);
 
     await this.postLikeRepository.save(postLikeEntity);
 
