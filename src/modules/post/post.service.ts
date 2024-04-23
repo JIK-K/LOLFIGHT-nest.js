@@ -57,7 +57,7 @@ export class PostService {
       .postViews(postDTO.postViews)
       .postLikes(postDTO.postLikes)
       .postComments(postDTO.postComments)
-      .boardId(getBoardData.id)
+      .board(getBoardData)
       .build();
 
     console.log('ddd', postEntity);
