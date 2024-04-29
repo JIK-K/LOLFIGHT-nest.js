@@ -9,7 +9,6 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
-import e from 'express';
 import { Server, Socket } from 'socket.io';
 import { MemberDTO } from 'src/modules/member/DTOs/member.dto';
 import { CommonUtil } from 'src/utils/common.util';
@@ -56,7 +55,7 @@ export default class SocketGateway
   private onlineMembers: Set<string> = new Set();
 
   private guildWaitingRoom: Array<WaitingRoom> = new Array();
-  private fightGuilds: Array<FightingRoom[]> = new Array();
+  private guildFightingRoom: Array<FightingRoom> = new Array();
 
   private testWaitRoom: Set<testRoom> = new Set();
   private testFightArray: Array<testFightRoom> = new Array();
@@ -266,16 +265,16 @@ export default class SocketGateway
       roomName: string;
     },
   ) {
-    let me: testRoom;
-    for (const room of this.testWaitRoom) {
-      if (room.name === data.roomName) {
+    let me: WaitingRoom;
+    for (const room of this.guildWaitingRoom) {
+      if (room.roomName === data.roomName) {
         me = room;
         break;
       }
     }
 
     // 내가 속한 방을 찾는데 team1이랑 team2가 다 있다면 => 다시 돌린다.
-    const existingRoomIndex = this.testFightArray.findIndex((fightRoom) => {
+    const existingRoomIndex = this.guildFightingRoom.findIndex((fightRoom) => {
       return (
         (fightRoom.team1 === me || fightRoom.team2 === me) &&
         fightRoom.team1 &&
@@ -287,22 +286,24 @@ export default class SocketGateway
       //다시 돌리는 로직 => 나를 현재 방에서 제외한후 상대가 team2라면 team1으로 옮기고 나는 다시 team2가 비어있는 방을 찾는다.
 
       //내가 team1이라면
-      if (this.testFightArray[existingRoomIndex].team1.name == me.name) {
+      if (
+        this.guildFightingRoom[existingRoomIndex].team1.roomName == me.roomName
+      ) {
         console.log('다시돌린다. 내가 team1일때');
-        this.testFightArray[existingRoomIndex].team1 =
-          this.testFightArray[existingRoomIndex].team2;
-        this.testFightArray[existingRoomIndex].team2 = null;
+        this.guildFightingRoom[existingRoomIndex].team1 =
+          this.guildFightingRoom[existingRoomIndex].team2;
+        this.guildFightingRoom[existingRoomIndex].team2 = null;
 
-        this.matchMaking(me);
+        this.matchMaking(client, me);
       } else {
         console.log('다시돌린다. 내가 team2일때');
-        this.testFightArray[existingRoomIndex].team2 = null;
+        this.guildFightingRoom[existingRoomIndex].team2 = null;
 
-        this.matchMaking(me);
+        this.matchMaking(client, me);
       }
     } else {
       //만약 team2가 비어있는 방이있다? => 누군가 매칭을 돌리고 있다.
-      this.matchMaking(me);
+      this.matchMaking(client, me);
     }
   }
 
@@ -427,10 +428,10 @@ export default class SocketGateway
   //========================================================================//
   //Function
   //========================================================================//
-  matchMaking(me: testRoom) {
+  matchMaking(socket: Socket, me: WaitingRoom) {
     const emptyIndexs: number[] = [];
     // team2가 비어있는 방의 인덱스를 찾아 emptyIndices 배열에 추가
-    this.testFightArray.forEach((fightRoom, index) => {
+    this.guildFightingRoom.forEach((fightRoom, index) => {
       if (!fightRoom.team2) {
         emptyIndexs.push(index);
       }
@@ -440,19 +441,26 @@ export default class SocketGateway
 
     if (emptyIndexs.length > 0) {
       //내가 돌리고있는 길드의 team2로 들어간다.
-      this.testFightArray[emptyIndex].team2 = me;
-      console.log('매칭완료 \n', this.testFightArray);
+      this.guildFightingRoom[emptyIndex].team2 = me;
+      console.log('매칭완료 \n', this.guildFightingRoom);
+      socket.join(this.guildFightingRoom[emptyIndex].fightRoomName);
+      socket
+        .to(this.guildFightingRoom[emptyIndex].fightRoomName)
+        .emit('searchFight', this.guildFightingRoom[emptyIndex]);
     } else {
       //아무도 없으면 내가 방을 판다.
       const randomString = CommonUtil.uuidv4();
-      const fightRoom: testFightRoom = {
-        fightRoom: randomString,
+      const fightRoom: FightingRoom = {
+        fightRoomName: randomString,
         team1: me,
         team2: null,
         readyCount: 0,
+        status: '대기중',
       };
-      this.testFightArray.push(fightRoom);
-      console.log('빈 방 생성 \n', this.testFightArray);
+      this.guildFightingRoom.push(fightRoom);
+      console.log('빈 방 생성 \n', this.guildFightingRoom);
+      socket.join(fightRoom.fightRoomName);
+      socket.emit('searchFight', fightRoom);
     }
   }
 }
