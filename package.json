@@ -20,6 +20,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@liaoliaots/nestjs-redis": "^9.0.5",
     "@nestjs-modules/mailer": "1.10.3",
     "@nestjs/common": "10.0.5",
     "@nestjs/config": "^3.1.1",
@@ -39,9 +40,11 @@
     "cookie-parser": "^1.4.6",
     "dotenv": "^16.3.1",
     "handlebars": "^4.7.8",
+    "ioredis": "^5.4.1",
     "mysql2": "^3.7.0",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
+    "redis": "^4.6.13",
     "reflect-metadata": "0.2.1",
     "rxjs": "^7.8.1",
     "typeorm": "^0.3.19",

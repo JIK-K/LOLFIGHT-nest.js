@@ -93,7 +93,7 @@ export class PostController {
 
   /**
    * Post 추천수 증가
-   * @param postId
+   * @param postDTO, memberId
    * @returns
    */
   @Post('/like')
@@ -104,6 +104,36 @@ export class PostController {
     this.logger.log(`Like Post : ${postDTO.id}`);
     return ResponseUtil.makeSuccessResponse(
       await this.postService.likePost(postDTO, memberId),
+    );
+  }
+
+  /**
+   * Post 추천여부 조회
+   * @param
+   * @returns
+   */
+  @Post('/getlike')
+  async getPostLike(
+    @Body() body: { postDTO: PostDTO; memberId: string },
+  ): Promise<ResponseDTO<boolean>> {
+    const { postDTO, memberId } = body;
+    return ResponseUtil.makeSuccessResponse(
+      await this.postService.getPostLike(postDTO, memberId),
+    );
+  }
+
+  /**
+   * Post 조회수 증가1
+   * @param
+   * @returns
+   */
+  @Post('/view')
+  async viewPost(
+    @Body() body: { postDTO: PostDTO },
+  ): Promise<ResponseDTO<PostDTO>> {
+    const { postDTO } = body;
+    return ResponseUtil.makeSuccessResponse(
+      await this.postService.viewPost(postDTO),
     );
   }
 }

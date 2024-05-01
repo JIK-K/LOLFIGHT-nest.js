@@ -18,7 +18,10 @@ export class PostLike extends BaseEntity {
   @JoinColumn({ name: 'post_board_id', referencedColumnName: 'boardId' })
   post: Post;
 
-  @ManyToOne(() => Member, (member) => member.id)
+  @ManyToOne(() => Member, (member) => member.id, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'member_id' })
   member: Member;
 }

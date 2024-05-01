@@ -18,6 +18,8 @@ import {
 } from 'fs';
 import { PostLikeDTO } from './DTOs/post_like.dto';
 import { PostLike } from './entities/post_like.entity';
+import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { Redis } from 'ioredis';
 
 @Injectable()
 export class PostService {
@@ -28,6 +30,7 @@ export class PostService {
     @InjectRepository(Member) private memberRepository: Repository<Member>,
     @InjectRepository(PostLike)
     private postLikeRepository: Repository<PostLike>,
+    @InjectRedis() private readonly redis: Redis,
   ) {}
 
   private logger: Logger = new Logger();
@@ -167,6 +170,8 @@ export class PostService {
       .andWhere('post.id = :postId', { postId: postId })
       .getOne();
 
+    postEntity.postViews += 1;
+
     this.logger.log('postEntity', postEntity);
     const postDTO = await this.postMapper.toDTO(postEntity);
     postDTO.postBoard = board;
@@ -191,9 +196,101 @@ export class PostService {
       where: { id: memberId },
     });
 
-    // const postEntity = await this.postRepository.findOne({
-    //   where: { id: postDTO.id, boardId: getBoardData.id },
+    const postEntity = await this.postRepository
+      .createQueryBuilder('post')
+      .leftJoinAndSelect('post.board', 'board')
+      .leftJoinAndSelect('post.member', 'member') // 이거 왜 붙어있지???
+      .where('post.id = :postId', { postId: postDTO.id })
+      .andWhere('board.id = :boardId', { boardId: getBoardData.id })
+      .getOne();
+
+    console.log('엔티티티쁘레쟈', postEntity);
+    console.log('블랠멤바 따라따따', getMemberData);
+
+    const postLikeEntity = await this.postLikeRepository
+      .createQueryBuilder('post_like')
+      .leftJoinAndSelect('post_like.member', 'member')
+      .where('post_like.post_id = :postId', { postId: postEntity.id })
+      .where('')
+      .andWhere('post_like.member_id = :memberId', { memberId: memberId })
+      .getOne();
+
+    console.log('여기있네임마~', postLikeEntity);
+
+    if (postLikeEntity) {
+      await this.postLikeRepository.remove(postLikeEntity);
+
+      postEntity.postLikes -= 1;
+    } else {
+      const postLikeEntity = Builder<PostLike>()
+        .post(postEntity)
+        .member(getMemberData)
+        .build();
+      postEntity.postLikes += 1;
+      await this.postLikeRepository.save(postLikeEntity);
+    }
+
+    this.logger.log('postEntity', postEntity);
+
+    // await this.postLikeRepository.save(postLikeEntity);
+
+    return this.postMapper.toDTO(await this.postRepository.save(postEntity));
+  }
+
+  /**
+   * Post 추천 여부 조회
+   * @param postDTO, memberId
+   * @returns
+   */
+  async getPostLike(postDTO: PostDTO, memberId: string): Promise<boolean> {
+    console.log('postDTO', postDTO);
+
+    const getBoardData = await this.boardRepository
+      .createQueryBuilder('board')
+      .where('board_type = :type', {
+        type: postDTO.postBoard,
+      })
+      .getOne();
+
+    // const getMemberData = await this.memberRepository.findOne({
+    //   where: { id: memberId },
     // });
+
+    // const getPostData = await this.postRepository
+    //   .createQueryBuilder('post')
+    //   .leftJoinAndSelect('post.board', 'board')
+    //   .leftJoinAndSelect('post.member', 'member')
+    //   .where('post.id = :postId', { postId: postDTO.id })
+    //   .andWhere('board.id = :boardId', { boardId: getBoardData.id })
+    //   .getOne();
+
+    const postLikeEntity = await this.postLikeRepository
+      .createQueryBuilder('post_like')
+      .leftJoinAndSelect('post_like.member', 'member')
+      .where('post_like.post_id = :postId', { postId: postDTO.id })
+      .andWhere('post_like.post_board_id = :post_board_id', {
+        post_board_id: getBoardData.id,
+      })
+      .andWhere('post_like.member_id = :memberId', { memberId: memberId })
+      .getOne();
+
+    console.log('있나~읎나~', postLikeEntity);
+
+    return postLikeEntity ? true : false;
+  }
+
+  /**
+   * Post 조회수 증가
+   * @param
+   * @returns
+   */
+  async viewPost(postDTO: PostDTO): Promise<PostDTO> {
+    const getBoardData = await this.boardRepository
+      .createQueryBuilder('board')
+      .where('board_type = :type', {
+        type: postDTO.postBoard,
+      })
+      .getOne();
 
     const postEntity = await this.postRepository
       .createQueryBuilder('post')
@@ -203,16 +300,16 @@ export class PostService {
       .andWhere('board.id = :boardId', { boardId: getBoardData.id })
       .getOne();
 
-    postEntity.postLikes += 1;
+    postEntity.postViews += 1;
 
-    const postLikeEntity = Builder<PostLike>()
-      .post(postEntity)
-      .member(getMemberData)
-      .build();
+    // await this.redis.set(
+    //   `${postDTO.id}_${memberId}`,
+    //   JSON.stringify(postDTO),
+    //   'EX',
+    //   60,
+    // );
 
-    this.logger.log('postEntity', postEntity);
-
-    await this.postLikeRepository.save(postLikeEntity);
+    // console.log('redis', await this.redis.get(`${postDTO.id}_${memberId}`));
 
     return this.postMapper.toDTO(await this.postRepository.save(postEntity));
   }
