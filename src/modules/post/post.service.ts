@@ -211,7 +211,6 @@ export class PostService {
       .createQueryBuilder('post_like')
       .leftJoinAndSelect('post_like.member', 'member')
       .where('post_like.post_id = :postId', { postId: postEntity.id })
-      .where('')
       .andWhere('post_like.member_id = :memberId', { memberId: memberId })
       .getOne();
 
