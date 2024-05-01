@@ -121,4 +121,19 @@ export class PostController {
       await this.postService.getPostLike(postDTO, memberId),
     );
   }
+
+  /**
+   * Post 조회수 증가1
+   * @param
+   * @returns
+   */
+  @Post('/view')
+  async viewPost(
+    @Body() body: { postDTO: PostDTO },
+  ): Promise<ResponseDTO<PostDTO>> {
+    const { postDTO } = body;
+    return ResponseUtil.makeSuccessResponse(
+      await this.postService.viewPost(postDTO),
+    );
+  }
 }

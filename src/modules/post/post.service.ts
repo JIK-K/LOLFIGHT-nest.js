@@ -18,6 +18,8 @@ import {
 } from 'fs';
 import { PostLikeDTO } from './DTOs/post_like.dto';
 import { PostLike } from './entities/post_like.entity';
+import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { Redis } from 'ioredis';
 
 @Injectable()
 export class PostService {
@@ -28,6 +30,7 @@ export class PostService {
     @InjectRepository(Member) private memberRepository: Repository<Member>,
     @InjectRepository(PostLike)
     private postLikeRepository: Repository<PostLike>,
+    @InjectRedis() private readonly redis: Redis,
   ) {}
 
   private logger: Logger = new Logger();
@@ -167,6 +170,8 @@ export class PostService {
       .andWhere('post.id = :postId', { postId: postId })
       .getOne();
 
+    postEntity.postViews += 1;
+
     this.logger.log('postEntity', postEntity);
     const postDTO = await this.postMapper.toDTO(postEntity);
     postDTO.postBoard = board;
@@ -272,5 +277,40 @@ export class PostService {
     console.log('있나~읎나~', postLikeEntity);
 
     return postLikeEntity ? true : false;
+  }
+
+  /**
+   * Post 조회수 증가
+   * @param
+   * @returns
+   */
+  async viewPost(postDTO: PostDTO): Promise<PostDTO> {
+    const getBoardData = await this.boardRepository
+      .createQueryBuilder('board')
+      .where('board_type = :type', {
+        type: postDTO.postBoard,
+      })
+      .getOne();
+
+    const postEntity = await this.postRepository
+      .createQueryBuilder('post')
+      .leftJoinAndSelect('post.board', 'board')
+      .leftJoinAndSelect('post.member', 'member')
+      .where('post.id = :postId', { postId: postDTO.id })
+      .andWhere('board.id = :boardId', { boardId: getBoardData.id })
+      .getOne();
+
+    postEntity.postViews += 1;
+
+    // await this.redis.set(
+    //   `${postDTO.id}_${memberId}`,
+    //   JSON.stringify(postDTO),
+    //   'EX',
+    //   60,
+    // );
+
+    // console.log('redis', await this.redis.get(`${postDTO.id}_${memberId}`));
+
+    return this.postMapper.toDTO(await this.postRepository.save(postEntity));
   }
 }
