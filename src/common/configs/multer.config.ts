@@ -6,7 +6,7 @@ import { CODE_CONSTANT } from '../constants/common-code.constant';
 
 export const multerConfig = {
   fileFilter: (request, file, callback) => {
-    if (file.mimetype.match(/\/(jpg|jpeg|png)$/)) {
+    if (file.mimetype.match(/\/(jpg|jpeg|png|gif)$/)) {
       // 이미지 형식은 jpg, jpeg, png만 허용합니다.
       callback(null, true);
     } else {
