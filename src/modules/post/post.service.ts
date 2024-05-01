@@ -210,14 +210,17 @@ export class PostService {
     const postLikeEntity = await this.postLikeRepository
       .createQueryBuilder('post_like')
       .leftJoinAndSelect('post_like.member', 'member')
+      .leftJoinAndSelect('post_like.post', 'post')
       .where('post_like.post_id = :postId', { postId: postEntity.id })
-      .where('')
+      .andWhere('post_like.post_board_id = :post_board_id', {
+        post_board_id: getBoardData.id,
+      })
       .andWhere('post_like.member_id = :memberId', { memberId: memberId })
       .getOne();
 
     console.log('여기있네임마~', postLikeEntity);
 
-    if (postLikeEntity) {
+    if (postLikeEntity !== null) {
       await this.postLikeRepository.remove(postLikeEntity);
 
       postEntity.postLikes -= 1;
