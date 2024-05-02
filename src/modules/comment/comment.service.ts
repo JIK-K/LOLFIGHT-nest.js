@@ -39,7 +39,7 @@ export class CommentService {
     // });
 
     const getPostData = await this.postRepository.findOne({
-      where: { id: commentDTO.post.id },
+      where: { id: commentDTO.post.id, boardId: getBoardData.id },
     });
 
     getPostData.postComments += 1;

@@ -15,6 +15,7 @@ import { ResponseDTO } from 'src/common/DTOs/response.dto';
 import { ResponseUtil } from 'src/utils/response.util';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { multerConfig } from 'src/common/configs/multer.config';
+import { PostLikeDTO } from './DTOs/post_like.dto';
 
 @Controller('post')
 export class PostController {
@@ -87,6 +88,52 @@ export class PostController {
     this.logger.log(`Get Post : ${board}, ${postId}`);
     return ResponseUtil.makeSuccessResponse(
       await this.postService.getPost(board, postId),
+    );
+  }
+
+  /**
+   * Post 추천수 증가
+   * @param postDTO, memberId
+   * @returns
+   */
+  @Post('/like')
+  async likePost(
+    @Body() body: { postDTO: PostDTO; memberId: string },
+  ): Promise<ResponseDTO<PostDTO>> {
+    const { postDTO, memberId } = body;
+    this.logger.log(`Like Post : ${postDTO.id}`);
+    return ResponseUtil.makeSuccessResponse(
+      await this.postService.likePost(postDTO, memberId),
+    );
+  }
+
+  /**
+   * Post 추천여부 조회
+   * @param
+   * @returns
+   */
+  @Post('/getlike')
+  async getPostLike(
+    @Body() body: { postDTO: PostDTO; memberId: string },
+  ): Promise<ResponseDTO<boolean>> {
+    const { postDTO, memberId } = body;
+    return ResponseUtil.makeSuccessResponse(
+      await this.postService.getPostLike(postDTO, memberId),
+    );
+  }
+
+  /**
+   * Post 조회수 증가1
+   * @param
+   * @returns
+   */
+  @Post('/view')
+  async viewPost(
+    @Body() body: { postDTO: PostDTO },
+  ): Promise<ResponseDTO<PostDTO>> {
+    const { postDTO } = body;
+    return ResponseUtil.makeSuccessResponse(
+      await this.postService.viewPost(postDTO),
     );
   }
 }

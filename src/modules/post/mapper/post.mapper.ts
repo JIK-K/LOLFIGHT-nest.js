@@ -12,6 +12,7 @@ export class PostMapper {
   toDTO(postEntity: Post): PostDTO {
     const {
       id,
+      board,
       postTitle,
       postContent,
       // postWriter,
@@ -28,6 +29,7 @@ export class PostMapper {
         .postTitle(postTitle)
         .postContent(postContent)
         // .postWriter(postWriter)
+        .postBoard(board.boardType)
         .postViews(postViews)
         .postLikes(postLikes)
         .postComments(postComments)

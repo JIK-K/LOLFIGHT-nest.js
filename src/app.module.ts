@@ -10,6 +10,7 @@ import { BoardModule } from './modules/board/board.module';
 import { PostModule } from './modules/post/post.module';
 import { CommentModule } from './modules/comment/comment.module';
 import { SocketModule } from './socket/socket.module';
+import { CustomRedisModule } from './redis/redis.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { SocketModule } from './socket/socket.module';
     PostModule,
     CommentModule,
     SocketModule,
+    CustomRedisModule,
   ],
   controllers: [AppController],
   providers: [AppService],
