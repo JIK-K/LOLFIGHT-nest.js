@@ -31,17 +31,6 @@ interface MatchMembers {
   isReady: boolean;
 }
 
-interface testRoom {
-  name: string;
-  person: string[];
-}
-interface testFightRoom {
-  fightRoom: string;
-  team_A: testRoom;
-  team_B: testRoom;
-  readyCount: number;
-}
-
 @WebSocketGateway(3001, {
   cors: { origin: '*' },
 })
@@ -56,9 +45,6 @@ export default class SocketGateway
 
   private guildWaitingRoom: Array<WaitingRoom> = new Array();
   private guildFightingRoom: Array<FightingRoom> = new Array();
-
-  private testWaitRoom: Set<testRoom> = new Set();
-  private testFightArray: Array<testFightRoom> = new Array();
 
   private logger: Logger = new Logger('FileEventsGateway');
 
@@ -269,6 +255,21 @@ export default class SocketGateway
     for (const room of this.guildWaitingRoom) {
       if (room.roomName === data.roomName) {
         me = room;
+        // me 객체를 찾았으면 isReady 속성을 false로 설정
+        const updatedMembers = me.members.map((member) => ({
+          ...member,
+          isReady: false,
+        }));
+        me.members = updatedMembers;
+
+        // guildWaitingRoom 배열에서 해당 방의 인덱스를 찾아 업데이트
+        const index = this.guildWaitingRoom.findIndex(
+          (room) => room.roomName === data.roomName,
+        );
+        if (index !== -1) {
+          this.guildWaitingRoom[index] = me;
+        }
+
         break;
       }
     }
@@ -361,11 +362,30 @@ export default class SocketGateway
     @MessageBody()
     data: {
       fightRoom: string;
+      memberName: string;
     },
   ) {
     for (const fightRoom of this.guildFightingRoom) {
       if (fightRoom.fightRoomName === data.fightRoom) {
         fightRoom.readyCount++;
+
+        const teamAMemberIndex = fightRoom.team_A.members.findIndex(
+          (member) => member.member.memberName === data.memberName,
+        );
+        const teamBMemberIndex = fightRoom.team_B.members.findIndex(
+          (member) => member.member.memberName === data.memberName,
+        );
+
+        if (teamAMemberIndex !== -1) {
+          fightRoom.team_A.members[teamAMemberIndex].isReady = true;
+        } else if (teamBMemberIndex !== -1) {
+          fightRoom.team_B.members[teamBMemberIndex].isReady = true;
+        } else {
+          console.log(
+            '[ERROR] - Team_A 또는 Team_B에서 Member를 찾을 수 없음.',
+          );
+        }
+        client.emit('readyFight', fightRoom);
         client.to(fightRoom.fightRoomName).emit('readyFight', fightRoom);
         console.log(fightRoom);
       }
@@ -383,11 +403,30 @@ export default class SocketGateway
     @MessageBody()
     data: {
       fightRoom: string;
+      memberName: string;
     },
   ) {
     for (const fightRoom of this.guildFightingRoom) {
       if (fightRoom.fightRoomName === data.fightRoom) {
         fightRoom.readyCount--;
+
+        const teamAMemberIndex = fightRoom.team_A.members.findIndex(
+          (member) => member.member.memberName === data.memberName,
+        );
+        const teamBMemberIndex = fightRoom.team_B.members.findIndex(
+          (member) => member.member.memberName === data.memberName,
+        );
+
+        if (teamAMemberIndex !== -1) {
+          fightRoom.team_A.members[teamAMemberIndex].isReady = false;
+        } else if (teamBMemberIndex !== -1) {
+          fightRoom.team_B.members[teamBMemberIndex].isReady = false;
+        } else {
+          console.log(
+            '[ERROR] - Team_A 또는 Team_B에서 Member를 찾을 수 없음.',
+          );
+        }
+        client.emit('cancelReady', fightRoom);
         client.to(fightRoom.fightRoomName).emit('cancelReady', fightRoom);
         console.log(fightRoom);
       }
@@ -399,33 +438,33 @@ export default class SocketGateway
    * @param client
    * @param data
    */
-  @SubscribeMessage('startFight')
-  handleStartFight(
-    @ConnectedSocket() client: Socket,
-    @MessageBody()
-    data: {
-      fightRoom: string;
-    },
-  ) {
-    for (const fightRoom of this.testFightArray) {
-      if (fightRoom.fightRoom === data.fightRoom) {
-        if (fightRoom.readyCount === 10) {
-          console.log(
-            '시작한다 : ' +
-              fightRoom.fightRoom +
-              '팀1 : ' +
-              fightRoom.team_A.name +
-              '팀2 : ' +
-              fightRoom.team_B.name,
-          );
-        } else {
-          console.log(
-            '아직 10명다 준비안함 ReadyCount : ' + fightRoom.readyCount,
-          );
-        }
-      }
-    }
-  }
+  // @SubscribeMessage('startFight')
+  // handleStartFight(
+  //   @ConnectedSocket() client: Socket,
+  //   @MessageBody()
+  //   data: {
+  //     fightRoom: string;
+  //   },
+  // ) {
+  //   for (const fightRoom of this.testFightArray) {
+  //     if (fightRoom.fightRoom === data.fightRoom) {
+  //       if (fightRoom.readyCount === 10) {
+  //         console.log(
+  //           '시작한다 : ' +
+  //             fightRoom.fightRoom +
+  //             '팀1 : ' +
+  //             fightRoom.team_A.name +
+  //             '팀2 : ' +
+  //             fightRoom.team_B.name,
+  //         );
+  //       } else {
+  //         console.log(
+  //           '아직 10명다 준비안함 ReadyCount : ' + fightRoom.readyCount,
+  //         );
+  //       }
+  //     }
+  //   }
+  // }
 
   /**
    * 길드 내전방 리스트
@@ -450,6 +489,7 @@ export default class SocketGateway
   //========================================================================//
   //Function
   //========================================================================//
+
   matchMaking(socket: Socket, me: WaitingRoom) {
     const emptyIndexs: number[] = [];
     // team_B가 비어있는 방의 인덱스를 찾아 emptyIndices 배열에 추가
