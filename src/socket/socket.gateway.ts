@@ -100,6 +100,17 @@ export default class SocketGateway
     });
   }
 
+  @SubscribeMessage('fightMessage')
+  handleFightMessage(
+    @ConnectedSocket() client: Socket,
+    @MessageBody()
+    messageData: { fightRoom: string; memberName: string; message: string },
+  ) {
+    const message = `[${messageData.memberName}]-${messageData.message}`;
+    client.emit('fightMessage', message);
+    client.to(messageData.fightRoom).emit('fightMessage', message);
+  }
+
   @SubscribeMessage('online')
   handleOnlineMember(
     @ConnectedSocket() clinet: Socket,
@@ -438,33 +449,39 @@ export default class SocketGateway
    * @param client
    * @param data
    */
-  // @SubscribeMessage('startFight')
-  // handleStartFight(
-  //   @ConnectedSocket() client: Socket,
-  //   @MessageBody()
-  //   data: {
-  //     fightRoom: string;
-  //   },
-  // ) {
-  //   for (const fightRoom of this.testFightArray) {
-  //     if (fightRoom.fightRoom === data.fightRoom) {
-  //       if (fightRoom.readyCount === 10) {
-  //         console.log(
-  //           '시작한다 : ' +
-  //             fightRoom.fightRoom +
-  //             '팀1 : ' +
-  //             fightRoom.team_A.name +
-  //             '팀2 : ' +
-  //             fightRoom.team_B.name,
-  //         );
-  //       } else {
-  //         console.log(
-  //           '아직 10명다 준비안함 ReadyCount : ' + fightRoom.readyCount,
-  //         );
-  //       }
-  //     }
-  //   }
-  // }
+  @SubscribeMessage('startFight')
+  handleStartFight(
+    @ConnectedSocket() client: Socket,
+    @MessageBody()
+    data: {
+      fightRoom: string;
+    },
+  ) {
+    for (const fightRoom of this.guildFightingRoom) {
+      if (fightRoom.fightRoomName === data.fightRoom) {
+        if (fightRoom.readyCount === 2) {
+          console.log(
+            '시작한다 : ' +
+              fightRoom.fightRoomName +
+              '팀1 : ' +
+              fightRoom.team_A.roomName +
+              '팀2 : ' +
+              fightRoom.team_B.roomName,
+          );
+          fightRoom.status = '게임중';
+          fightRoom.team_A.status = '게임중';
+          fightRoom.team_B.status = '게임중';
+
+          client.emit('startFight', fightRoom);
+          client.to(fightRoom.fightRoomName).emit('startFight', fightRoom);
+        } else {
+          console.log(
+            '아직 10명다 준비안함 ReadyCount : ' + fightRoom.readyCount,
+          );
+        }
+      }
+    }
+  }
 
   /**
    * 길드 내전방 리스트
@@ -495,6 +512,12 @@ export default class SocketGateway
     // team_B가 비어있는 방의 인덱스를 찾아 emptyIndices 배열에 추가
     this.guildFightingRoom.forEach((fightRoom, index) => {
       if (!fightRoom.team_B) {
+        console.log(
+          '나 : ' +
+            me.roomName.split('-')[0] +
+            '상대 : ' +
+            fightRoom.team_A.roomName.split('-')[0],
+        );
         emptyIndexs.push(index);
       }
     });
