@@ -136,4 +136,19 @@ export class PostController {
       await this.postService.viewPost(postDTO),
     );
   }
+
+  /**
+   * Post 삭제
+   * @param postDTO
+   * @returns
+   */
+  @Post('/delete')
+  async deletePost(
+    @Body() body: { postDTO: PostDTO },
+  ): Promise<ResponseDTO<PostDTO>> {
+    const { postDTO } = body;
+    return ResponseUtil.makeSuccessResponse(
+      await this.postService.deletePost(postDTO),
+    );
+  }
 }

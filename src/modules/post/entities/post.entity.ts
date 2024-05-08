@@ -41,6 +41,12 @@ export class Post extends BaseEntity {
   @Column({ name: 'post_comments', default: 0 })
   postComments: number;
 
+  @Column({ name: 'deletedTrue', default: false })
+  deletedTrue: boolean;
+
+  @Column({ name: 'deletedAt', nullable: true })
+  deletedAt: Date;
+
   @ManyToOne(() => Board, (board) => board.id)
   @JoinColumn({ name: 'board_id' })
   board: Board;
