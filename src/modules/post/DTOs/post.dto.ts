@@ -29,4 +29,10 @@ export class PostDTO extends BaseDTO {
 
   @IsOptional()
   postBoard: string;
+
+  @IsOptional()
+  deletedTrue: boolean;
+
+  @IsOptional()
+  deletedAt: Date;
 }

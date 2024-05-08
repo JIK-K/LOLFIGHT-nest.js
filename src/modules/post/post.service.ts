@@ -120,6 +120,7 @@ export class PostService {
         .createQueryBuilder('post')
         .leftJoinAndSelect('post.member', 'member')
         .leftJoinAndSelect('post.board', 'board')
+        .where('deletedTrue = :deletedTrue', { deletedTrue: false })
         .getMany();
       this.logger.log('postEntites', postEntites);
     } else {
@@ -129,6 +130,7 @@ export class PostService {
         .where('board_type = :type', {
           type: board,
         })
+        .andWhere('deletedTrue = :deletedTrue', { deletedTrue: false })
         .getOne();
 
       this.logger.log('getBoardData', getBoardData);
@@ -313,6 +315,33 @@ export class PostService {
     // );
 
     // console.log('redis', await this.redis.get(`${postDTO.id}_${memberId}`));
+
+    return this.postMapper.toDTO(await this.postRepository.save(postEntity));
+  }
+
+  /**
+   * Post 삭제
+   * @param postDTO
+   * @returns
+   */
+  async deletePost(postDTO: PostDTO): Promise<PostDTO> {
+    const getBoardData = await this.boardRepository
+      .createQueryBuilder('board')
+      .where('board_type = :type', {
+        type: postDTO.postBoard,
+      })
+      .getOne();
+
+    const postEntity = await this.postRepository
+      .createQueryBuilder('post')
+      .leftJoinAndSelect('post.board', 'board')
+      .leftJoinAndSelect('post.member', 'member')
+      .where('post.id = :postId', { postId: postDTO.id })
+      .andWhere('board.id = :boardId', { boardId: getBoardData.id })
+      .getOne();
+
+    postEntity.deletedTrue = true;
+    postEntity.deletedAt = new Date();
 
     return this.postMapper.toDTO(await this.postRepository.save(postEntity));
   }

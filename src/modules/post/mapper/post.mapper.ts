@@ -19,6 +19,8 @@ export class PostMapper {
       postViews,
       postLikes,
       postComments,
+      deletedAt,
+      deletedTrue,
       createdAt: postDate,
       member,
     } = postEntity;
@@ -34,6 +36,8 @@ export class PostMapper {
         .postLikes(postLikes)
         .postComments(postComments)
         .postDate(postDate)
+        .deletedAt(deletedAt)
+        .deletedTrue(deletedTrue)
         .postWriter(member.memberName)
         .build()
     );
