@@ -27,23 +27,23 @@ export class BattleTeam extends BaseEntity {
   @Column({ name: 'guild_name' })
   guildName: string;
 
-  @OneToOne(() => BattlePlayer, { onDelete: 'CASCADE' })
+  @OneToOne(() => BattlePlayer)
   @JoinColumn({ name: 'player1' })
   player1: BattlePlayer;
 
-  @OneToOne(() => BattlePlayer, { onDelete: 'CASCADE' })
+  @OneToOne(() => BattlePlayer)
   @JoinColumn({ name: 'player2' })
   player2: BattlePlayer;
 
-  @OneToOne(() => BattlePlayer, { onDelete: 'CASCADE' })
+  @OneToOne(() => BattlePlayer)
   @JoinColumn({ name: 'player3' })
   player3: BattlePlayer;
 
-  @OneToOne(() => BattlePlayer, { onDelete: 'CASCADE' })
+  @OneToOne(() => BattlePlayer)
   @JoinColumn({ name: 'player4' })
   player4: BattlePlayer;
 
-  @OneToOne(() => BattlePlayer, { onDelete: 'CASCADE' })
+  @OneToOne(() => BattlePlayer)
   @JoinColumn({ name: 'player5' })
   player5: BattlePlayer;
 }

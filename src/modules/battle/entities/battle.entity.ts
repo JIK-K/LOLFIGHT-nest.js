@@ -20,7 +20,7 @@ export class Battle extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ name: 'battle_id' })
+  @Column({ name: 'battle_id', type: 'bigint' })
   battleId: number;
 
   @Column({ name: 'battle_Mode' })
@@ -29,11 +29,11 @@ export class Battle extends BaseEntity {
   @Column({ name: 'battle_Length' })
   battleLength: number;
 
-  @OneToOne(() => BattleTeam, { onDelete: 'CASCADE' })
+  @OneToOne(() => BattleTeam)
   @JoinColumn({ name: 'team_A' })
   teamA: BattleTeam;
 
-  @OneToOne(() => BattleTeam, { onDelete: 'CASCADE' })
+  @OneToOne(() => BattleTeam)
   @JoinColumn({ name: 'team_B' })
   teamB: BattleTeam;
 }

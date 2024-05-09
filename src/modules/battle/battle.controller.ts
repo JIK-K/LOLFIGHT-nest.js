@@ -12,7 +12,9 @@ export class BattleController {
 
   @Post()
   async create(@Body() battleDTO: BattleDTO): Promise<ResponseDTO<BattleDTO>> {
-    this.logger.log(`Create Battle Results : ${battleDTO.battleId}`);
+    this.logger.log(
+      `Create Battle Results : ${battleDTO.teamA.guildName} vs ${battleDTO.teamB.guildName}`,
+    );
     return ResponseUtil.makeSuccessResponse(
       await this.battleService.createBattle(battleDTO),
     );
