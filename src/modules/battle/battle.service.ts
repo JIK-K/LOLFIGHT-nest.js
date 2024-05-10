@@ -36,8 +36,8 @@ export class BattleService {
    * @param battleDTO
    * @returns
    */
-  async createBattle(battleDTO: BattleDTO): Promise<BattleDTO> {
-    console.log(battleDTO);
+  async createBattle(battleDTO: BattleDTO): Promise<string> {
+    return '테스트';
     // 팀 A 엔티티 생성 및 저장
     const teamAEntity: BattleTeam = await this.createBattleTeam(
       battleDTO.teamA,
@@ -97,8 +97,6 @@ export class BattleService {
       'CHALLENGER', // 3500
     ];
 
-    console.log(teamAGuildRecordEntity);
-    console.log(teamBGuildRecordEntity);
     if (battleDTO.teamA.isWinning) {
       //TeamA 승리
       const teamATierIndex = tierNames.indexOf(
@@ -156,9 +154,9 @@ export class BattleService {
     await this.guildRepository.save(teamBGuildEntity);
     await this.guildRecordRepository.save(teamBGuildRecordEntity);
 
-    return this.battleMapper.toDTO(
-      await this.battleRepository.save(battleEntity),
-    );
+    // return this.battleMapper.toDTO(
+    //   await this.battleRepository.save(battleEntity),
+    // );
   }
 
   //===========================================================================//

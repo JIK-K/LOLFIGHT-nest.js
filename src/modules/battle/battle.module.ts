@@ -10,6 +10,7 @@ import { BattlePlayerMapper } from './mapper/battle_player.mapper';
 import { BattleTeamMapper } from './mapper/battle_team.mapper';
 import { GuildRecord } from '../guild/entities/guild_record.entity';
 import { Guild } from '../guild/entities/guild.entity';
+import { SocketModule } from 'src/socket/socket.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { Guild } from '../guild/entities/guild.entity';
     TypeOrmModule.forFeature([BattlePlayer]),
     TypeOrmModule.forFeature([Guild]),
     TypeOrmModule.forFeature([GuildRecord]),
+    SocketModule,
   ],
   controllers: [BattleController],
   providers: [

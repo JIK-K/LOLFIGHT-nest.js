@@ -106,6 +106,15 @@ export class MemberController {
     );
   }
 
+  @Get('/guildName')
+  async getGuildName(
+    @Query('summonerName') name: string,
+  ): Promise<ResponseDTO<string>> {
+    return ResponseUtil.makeSuccessResponse(
+      await this.memberService.getMemberGuildName(name),
+    );
+  }
+
   // @UseGuards(AuthGuard('access'))
   // @Get('/login')
   // async loginMember(
