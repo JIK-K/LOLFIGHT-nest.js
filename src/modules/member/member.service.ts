@@ -235,4 +235,16 @@ export class MemberService {
     const removeData = await this.memberRepository.remove(memberEntity);
     return this.memberMapper.toDTO(removeData);
   }
+
+  async getMemberGuildName(summonerName: string): Promise<string> {
+    const memberEntity: Member = await this.memberRepository
+      .createQueryBuilder('member')
+      .leftJoinAndSelect('member.memberGuild', 'guild')
+      .leftJoinAndSelect('member.memberGame', 'memberGame')
+      .where('memberGame.gameName = :gameName', {
+        gameName: summonerName,
+      })
+      .getOne();
+    return memberEntity.memberGuild.guildName;
+  }
 }

@@ -11,6 +11,7 @@ import { PostModule } from './modules/post/post.module';
 import { CommentModule } from './modules/comment/comment.module';
 import { SocketModule } from './socket/socket.module';
 import { CustomRedisModule } from './redis/redis.module';
+import { BattleModule } from './modules/battle/battle.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { CustomRedisModule } from './redis/redis.module';
     PostModule,
     CommentModule,
     SocketModule,
+    BattleModule,
     CustomRedisModule,
   ],
   controllers: [AppController],
