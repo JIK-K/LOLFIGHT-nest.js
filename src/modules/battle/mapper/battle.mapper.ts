@@ -20,4 +20,12 @@ export class BattleMapper {
       .teamB(teamB)
       .build();
   }
+
+  toDTOList(battleEntites: Battle[]): BattleDTO[] {
+    const battleDTOList = [];
+    battleEntites.forEach((battleEntity) =>
+      battleDTOList.push(this.toDTO(battleEntity)),
+    );
+    return battleDTOList;
+  }
 }

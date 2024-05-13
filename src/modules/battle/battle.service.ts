@@ -36,8 +36,8 @@ export class BattleService {
    * @param battleDTO
    * @returns
    */
-  async createBattle(battleDTO: BattleDTO): Promise<string> {
-    return '테스트';
+  async createBattle(battleDTO: BattleDTO): Promise<BattleDTO> {
+    // return '테스트';
     // 팀 A 엔티티 생성 및 저장
     const teamAEntity: BattleTeam = await this.createBattleTeam(
       battleDTO.teamA,
@@ -154,9 +154,40 @@ export class BattleService {
     await this.guildRepository.save(teamBGuildEntity);
     await this.guildRecordRepository.save(teamBGuildRecordEntity);
 
-    // return this.battleMapper.toDTO(
-    //   await this.battleRepository.save(battleEntity),
-    // );
+    return this.battleMapper.toDTO(
+      await this.battleRepository.save(battleEntity),
+    );
+  }
+
+  /**
+   * Battle 길드 내전 결과 가져오기
+   * @param guildName
+   */
+  async getBattles(guildName: string): Promise<BattleDTO[]> {
+    const battleEntities: Battle[] = await this.battleRepository
+      .createQueryBuilder('battle')
+      .leftJoinAndSelect('battle.teamA', 'teamA')
+      .leftJoinAndSelect('teamA.player1', 'player1A')
+      .leftJoinAndSelect('teamA.player2', 'player2A')
+      .leftJoinAndSelect('teamA.player3', 'player3A')
+      .leftJoinAndSelect('teamA.player4', 'player4A')
+      .leftJoinAndSelect('teamA.player5', 'player5A')
+      .leftJoinAndSelect('battle.teamB', 'teamB')
+      .leftJoinAndSelect('teamB.player1', 'player1B')
+      .leftJoinAndSelect('teamB.player2', 'player2B')
+      .leftJoinAndSelect('teamB.player3', 'player3B')
+      .leftJoinAndSelect('teamB.player4', 'player4B')
+      .leftJoinAndSelect('teamB.player5', 'player5B')
+      .where('teamA.guildName = :guildName OR teamB.guildName = :guildName', {
+        guildName: guildName,
+      })
+      .getMany();
+
+    battleEntities.forEach((battle) => {
+      console.log(battle);
+    });
+
+    return this.battleMapper.toDTOList(battleEntities);
   }
 
   //===========================================================================//

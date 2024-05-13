@@ -1,4 +1,12 @@
-import { Body, Controller, Inject, Logger, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Inject,
+  Logger,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { BattleService } from './battle.service';
 import { ResponseDTO } from 'src/common/DTOs/response.dto';
 import { BattleDTO } from './DTOs/battle.dto';
@@ -23,13 +31,23 @@ export class BattleController {
   async create(
     @Body() battleDTO: BattleDTO,
     @Query('fightRoomName') fightRoomName: string,
-  ): Promise<ResponseDTO<string>> {
+  ): Promise<ResponseDTO<BattleDTO>> {
     this.logger.log(
       `Create Battle Results : ${battleDTO.teamA.guildName} vs ${battleDTO.teamB.guildName}`,
     );
     this.socketGateWay.updateFightRoomStatus(fightRoomName);
     return ResponseUtil.makeSuccessResponse(
       await this.battleService.createBattle(battleDTO),
+    );
+  }
+
+  @Get('/getBattle')
+  async getBattle(
+    @Query('guildName') guildName: string,
+  ): Promise<ResponseDTO<BattleDTO[]>> {
+    this.logger.log(`Get Battle Results ${guildName}`);
+    return ResponseUtil.makeSuccessResponse(
+      await this.battleService.getBattles(guildName),
     );
   }
 }
