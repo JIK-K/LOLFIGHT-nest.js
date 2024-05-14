@@ -13,6 +13,7 @@ export class BattleTeamMapper {
     const {
       id,
       isWinning,
+      point,
       guildName,
       player1,
       player2,
@@ -24,6 +25,7 @@ export class BattleTeamMapper {
     return Builder<BattleTeamDTO>()
       .id(id)
       .isWinning(isWinning)
+      .point(point)
       .guildName(guildName)
       .player1(player1)
       .player2(player2)

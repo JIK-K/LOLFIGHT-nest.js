@@ -47,16 +47,6 @@ export class BattleService {
       battleDTO.teamB,
     );
 
-    // 전투 엔티티 생성
-    const battleEntity: Battle = Builder<Battle>()
-      .id(battleDTO.id)
-      .battleId(battleDTO.battleId)
-      .battleMode(battleDTO.battleMode)
-      .battleLength(battleDTO.battleLength)
-      .teamA(teamAEntity)
-      .teamB(teamBEntity)
-      .build();
-
     //Guild Record 최신화
     const teamAGuildEntity: Guild = await this.guildRepository
       .createQueryBuilder('guild')
@@ -116,12 +106,14 @@ export class BattleService {
       teamAGuildEntity.guildTier = this.calGuildTier(
         teamAGuildRecordEntity.recordLadder,
       );
+      teamAEntity.point = resultScore;
 
       teamBGuildRecordEntity.recordDefeat++;
       teamBGuildRecordEntity.recordLadder -= resultScore;
       teamBGuildEntity.guildTier = this.calGuildTier(
         teamBGuildRecordEntity.recordLadder,
       );
+      teamBEntity.point = -Math.abs(resultScore);
     } else {
       //TeamB 승리
       const teamATierIndex = tierNames.indexOf(
@@ -141,18 +133,33 @@ export class BattleService {
       teamAGuildEntity.guildTier = this.calGuildTier(
         teamAGuildRecordEntity.recordLadder,
       );
+      teamAEntity.point = -Math.abs(resultScore);
 
       teamBGuildRecordEntity.recordVictory++;
       teamBGuildRecordEntity.recordLadder += resultScore;
       teamBGuildEntity.guildTier = this.calGuildTier(
         teamBGuildRecordEntity.recordLadder,
       );
+      teamAEntity.point = resultScore;
     }
 
     await this.guildRepository.save(teamAGuildEntity);
     await this.guildRecordRepository.save(teamAGuildRecordEntity);
     await this.guildRepository.save(teamBGuildEntity);
     await this.guildRecordRepository.save(teamBGuildRecordEntity);
+
+    await this.battleTeamRepository.save(teamAEntity);
+    await this.battleTeamRepository.save(teamBEntity);
+
+    // 전투 엔티티 생성
+    const battleEntity: Battle = Builder<Battle>()
+      .id(battleDTO.id)
+      .battleId(battleDTO.battleId)
+      .battleMode(battleDTO.battleMode)
+      .battleLength(battleDTO.battleLength)
+      .teamA(teamAEntity)
+      .teamB(teamBEntity)
+      .build();
 
     return this.battleMapper.toDTO(
       await this.battleRepository.save(battleEntity),
@@ -183,10 +190,6 @@ export class BattleService {
       })
       .getMany();
 
-    battleEntities.forEach((battle) => {
-      console.log(battle);
-    });
-
     return this.battleMapper.toDTOList(battleEntities);
   }
 
@@ -214,6 +217,7 @@ export class BattleService {
     // 팀 엔티티 생성 및 저장
     const teamEntity: BattleTeam = this.battleTeamRepository.create({
       isWinning: teamDTO.isWinning,
+      point: 0,
       guildName: teamDTO.guildName,
       player1: playerEntities[0] || null,
       player2: playerEntities[1] || null,
@@ -222,11 +226,11 @@ export class BattleService {
       player5: playerEntities[4] || null,
     });
 
-    const savedTeam: BattleTeam = await this.battleTeamRepository.save(
-      teamEntity,
-    );
+    // const savedTeam: BattleTeam = await this.battleTeamRepository.save(
+    //   teamEntity,
+    // );
 
-    return savedTeam;
+    return teamEntity;
   }
 
   private calGuildTier(ladderPoint: number): string {

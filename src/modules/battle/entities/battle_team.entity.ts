@@ -24,6 +24,9 @@ export class BattleTeam extends BaseEntity {
   @Column({ name: 'is_winning' })
   isWinning: boolean;
 
+  @Column({ name: 'point' })
+  point: number;
+
   @Column({ name: 'guild_name' })
   guildName: string;
 

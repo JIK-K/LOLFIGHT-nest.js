@@ -10,6 +10,9 @@ export class BattleTeamDTO extends BaseDTO {
   isWinning: boolean;
 
   @IsOptional()
+  point: number;
+
+  @IsOptional()
   guildName: string;
 
   @IsOptional()
