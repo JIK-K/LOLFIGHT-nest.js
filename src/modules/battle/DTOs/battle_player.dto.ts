@@ -62,4 +62,7 @@ export class BattlePlayerDTO extends BaseDTO {
   perk4: number;
   @IsOptional()
   perk5: number;
+
+  @IsOptional()
+  perkSub: number;
 }

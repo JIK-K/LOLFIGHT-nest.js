@@ -82,4 +82,7 @@ export class BattlePlayer extends BaseEntity {
   perk4: number;
   @Column({ name: 'perk5' })
   perk5: number;
+
+  @Column({ name: 'perk_sub' })
+  perkSub: number;
 }

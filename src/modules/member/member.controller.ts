@@ -69,6 +69,21 @@ export class MemberController {
   }
 
   /**
+   * Member name로 찾기
+   * @param id
+   * @returns
+   */
+  @Get('/findByName')
+  async findByName(
+    @Query('name') name: string,
+  ): Promise<ResponseDTO<MemberDTO>> {
+    this.logger.log(`Find Member Name : ${name}`);
+    return ResponseUtil.makeSuccessResponse(
+      await this.memberService.findMemberByName(name),
+    );
+  }
+
+  /**
    * Member 길드 탈퇴
    * @param id
    * @returns

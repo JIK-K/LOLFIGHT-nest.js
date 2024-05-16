@@ -31,6 +31,7 @@ export class BattlePlayerMapper {
       perk3,
       perk4,
       perk5,
+      perkSub,
     } = battlePlayerEntity;
 
     return Builder<BattlePlayerDTO>()
@@ -56,6 +57,7 @@ export class BattlePlayerMapper {
       .perk3(perk3)
       .perk4(perk4)
       .perk5(perk5)
+      .perkSub(perkSub)
       .build();
   }
 }

@@ -194,7 +194,7 @@ export class MemberService {
   }
 
   /**
-   * Member find
+   * Member 찾기 (id)
    * @param id
    * @returns
    */
@@ -205,6 +205,28 @@ export class MemberService {
       .leftJoinAndSelect('member.memberGame', 'member_game')
       .where('member_id = :id', {
         id: id,
+      })
+      .getOne();
+
+    if (!CommonUtil.isValid(memberEntity)) {
+      throw new HttpException(CODE_CONSTANT.NO_DATA, HttpStatus.BAD_REQUEST);
+    }
+
+    return await this.memberMapper.toDTO(memberEntity);
+  }
+
+  /**
+   * Member 찾기 (name)
+   * @param name
+   * @returns
+   */
+  async findMemberByName(name: string): Promise<MemberDTO> {
+    const memberEntity: Member = await this.memberRepository
+      .createQueryBuilder('member')
+      .leftJoinAndSelect('member.memberGuild', 'guild')
+      .leftJoinAndSelect('member.memberGame', 'member_game')
+      .where('member_name = :memberName', {
+        memberName: name,
       })
       .getOne();
 
