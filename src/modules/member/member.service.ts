@@ -258,15 +258,26 @@ export class MemberService {
     return this.memberMapper.toDTO(removeData);
   }
 
+  /**
+   * Member Guild LOLName으로 찾기
+   * @param summonerName
+   * @returns
+   */
   async getMemberGuildName(summonerName: string): Promise<string> {
     const memberEntity: Member = await this.memberRepository
       .createQueryBuilder('member')
-      .leftJoinAndSelect('member.memberGuild', 'guild')
       .leftJoinAndSelect('member.memberGame', 'memberGame')
-      .where('memberGame.gameName = :gameName', {
-        gameName: summonerName,
+      .leftJoinAndSelect('member.memberGuild', 'guild')
+      .where('memberGame.game_name LIKE :gameName', {
+        gameName: `%${summonerName}%`,
       })
       .getOne();
+
+    if (!memberEntity || !memberEntity.memberGuild) {
+      throw new Error('Member not found or has no associated guild');
+    }
+    console.log(memberEntity);
+
     return memberEntity.memberGuild.guildName;
   }
 }
