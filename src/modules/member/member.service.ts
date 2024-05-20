@@ -146,10 +146,23 @@ export class MemberService {
         await this.memberGameRepository.save(memberGameEntity);
         memberEntity.memberGame = memberGameEntity;
       } else {
-        existGameData.gameName = memberDTO.memberGame.gameName;
-        existGameData.gameTier = memberDTO.memberGame.gameTier;
-        await this.memberGameRepository.save(existGameData);
-        memberEntity.memberGame = existGameData;
+        const duplicateData: Member = await this.memberRepository
+          .createQueryBuilder('member')
+          .where('member_game = :gameId', {
+            gameId: existGameData.id,
+          })
+          .getOne();
+        if (!duplicateData) {
+          existGameData.gameName = memberDTO.memberGame.gameName;
+          existGameData.gameTier = memberDTO.memberGame.gameTier;
+          await this.memberGameRepository.save(existGameData);
+          memberEntity.memberGame = existGameData;
+        } else {
+          throw new HttpException(
+            CODE_CONSTANT.EXIST_DATA,
+            HttpStatus.BAD_REQUEST,
+          );
+        }
       }
     }
 
