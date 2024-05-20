@@ -121,6 +121,11 @@ export class MemberController {
     );
   }
 
+  /**
+   * Member Guild LOLName으로 찾기
+   * @param name
+   * @returns
+   */
   @Get('/guildName')
   async getGuildName(
     @Query('summonerName') name: string,
