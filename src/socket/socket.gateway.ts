@@ -63,6 +63,16 @@ export default class SocketGateway
     });
 
     if (namespaceToRemove) {
+      console.log('수정전', this.guildWaitingRoom);
+
+      const roomIndex = this.guildWaitingRoom.findIndex((room) =>
+        room.roomName.includes(namespaceToRemove.split('-')[1]),
+      );
+      this.guildWaitingRoom.splice(roomIndex, 1);
+      client.to(namespaceToRemove).emit('leaveRoom', null);
+      client.leave(namespaceToRemove);
+
+      console.log('수정후', this.guildWaitingRoom);
       this.onlineMembers.delete(namespaceToRemove.split('-')[1]);
     }
   }
