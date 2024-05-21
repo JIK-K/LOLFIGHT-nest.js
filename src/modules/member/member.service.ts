@@ -108,9 +108,6 @@ export class MemberService {
       })
       .getOne();
 
-    console.log(memberDTO);
-    console.log(memberEntity);
-
     if (!CommonUtil.isValid(memberEntity)) {
       throw new HttpException(CODE_CONSTANT.NO_DATA, HttpStatus.BAD_REQUEST);
     }
@@ -152,7 +149,8 @@ export class MemberService {
             gameId: existGameData.id,
           })
           .getOne();
-        if (!duplicateData) {
+        console.log(memberDTO.id === duplicateData.id);
+        if (memberDTO.id === duplicateData.id) {
           existGameData.gameName = memberDTO.memberGame.gameName;
           existGameData.gameTier = memberDTO.memberGame.gameTier;
           await this.memberGameRepository.save(existGameData);
