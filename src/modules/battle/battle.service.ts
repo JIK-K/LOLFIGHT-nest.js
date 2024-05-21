@@ -37,7 +37,7 @@ export class BattleService {
    * @returns
    */
   async createBattle(battleDTO: BattleDTO): Promise<BattleDTO> {
-    // return '테스트';
+    console.log(battleDTO);
     // 팀 A 엔티티 생성 및 저장
     const teamAEntity: BattleTeam = await this.createBattleTeam(
       battleDTO.teamA,
@@ -61,6 +61,7 @@ export class BattleService {
         guildName: battleDTO.teamA.guildName,
       })
       .getOne();
+    console.log(teamAGuildRecordEntity);
 
     const teamBGuildEntity: Guild = await this.guildRepository
       .createQueryBuilder('guild')
