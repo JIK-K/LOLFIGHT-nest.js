@@ -11,7 +11,11 @@ import { PostModule } from './modules/post/post.module';
 import { CommentModule } from './modules/comment/comment.module';
 import { SocketModule } from './socket/socket.module';
 import { CustomRedisModule } from './redis/redis.module';
+<<<<<<< Updated upstream
 import { BattleModule } from './modules/battle/battle.module';
+=======
+import { FileController } from './file/file.controller';
+>>>>>>> Stashed changes
 
 @Module({
   imports: [
@@ -30,7 +34,7 @@ import { BattleModule } from './modules/battle/battle.module';
     BattleModule,
     CustomRedisModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, FileController],
   providers: [AppService],
 })
 export class AppModule {}
