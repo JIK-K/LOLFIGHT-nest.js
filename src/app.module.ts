@@ -10,12 +10,8 @@ import { BoardModule } from './modules/board/board.module';
 import { PostModule } from './modules/post/post.module';
 import { CommentModule } from './modules/comment/comment.module';
 import { SocketModule } from './socket/socket.module';
-import { CustomRedisModule } from './redis/redis.module';
-<<<<<<< Updated upstream
-import { BattleModule } from './modules/battle/battle.module';
-=======
 import { FileController } from './file/file.controller';
->>>>>>> Stashed changes
+import { BattleModule } from './modules/battle/battle.module';
 
 @Module({
   imports: [
@@ -32,7 +28,6 @@ import { FileController } from './file/file.controller';
     CommentModule,
     SocketModule,
     BattleModule,
-    CustomRedisModule,
   ],
   controllers: [AppController, FileController],
   providers: [AppService],
