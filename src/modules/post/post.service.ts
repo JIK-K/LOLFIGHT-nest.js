@@ -30,7 +30,6 @@ export class PostService {
     @InjectRepository(Member) private memberRepository: Repository<Member>,
     @InjectRepository(PostLike)
     private postLikeRepository: Repository<PostLike>,
-    @InjectRedis() private readonly redis: Redis,
   ) {}
 
   private logger: Logger = new Logger();

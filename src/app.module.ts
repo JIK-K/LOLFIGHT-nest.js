@@ -10,7 +10,7 @@ import { BoardModule } from './modules/board/board.module';
 import { PostModule } from './modules/post/post.module';
 import { CommentModule } from './modules/comment/comment.module';
 import { SocketModule } from './socket/socket.module';
-import { CustomRedisModule } from './redis/redis.module';
+import { FileController } from './file/file.controller';
 import { BattleModule } from './modules/battle/battle.module';
 
 @Module({
@@ -28,9 +28,8 @@ import { BattleModule } from './modules/battle/battle.module';
     CommentModule,
     SocketModule,
     BattleModule,
-    CustomRedisModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, FileController],
   providers: [AppService],
 })
 export class AppModule {}
