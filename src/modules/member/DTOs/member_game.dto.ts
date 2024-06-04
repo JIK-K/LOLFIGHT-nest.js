@@ -10,4 +10,7 @@ export class MemberDTO extends BaseDTO {
 
   @IsOptional()
   gameTier: string;
+
+  @IsOptional()
+  summonerId: number;
 }

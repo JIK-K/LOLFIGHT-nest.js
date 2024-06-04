@@ -138,6 +138,7 @@ export class MemberService {
           .id(memberDTO.memberGame.id)
           .gameName(memberDTO.memberGame.gameName)
           .gameTier(memberDTO.memberGame.gameTier)
+          .summonerId(memberDTO.memberGame.summonerId)
           .build();
 
         await this.memberGameRepository.save(memberGameEntity);
@@ -149,10 +150,11 @@ export class MemberService {
             gameId: existGameData.id,
           })
           .getOne();
-        console.log(memberDTO.id === duplicateData.id);
+
         if (memberDTO.id === duplicateData.id) {
           existGameData.gameName = memberDTO.memberGame.gameName;
           existGameData.gameTier = memberDTO.memberGame.gameTier;
+          existGameData.summonerId = memberDTO.memberGame.summonerId;
           await this.memberGameRepository.save(existGameData);
           memberEntity.memberGame = existGameData;
         } else {
