@@ -18,6 +18,9 @@ export class MemberGame extends BaseEntity {
   @Column({ name: 'game_tier' })
   gameTier: string;
 
+  @Column({ name: 'game_summonerId' })
+  summonerId: number;
+
   @OneToOne(() => Member, (member) => member.memberGame, {
     onDelete: 'CASCADE',
   })
