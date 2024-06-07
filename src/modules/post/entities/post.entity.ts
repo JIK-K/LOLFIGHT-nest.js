@@ -51,7 +51,7 @@ export class Post extends BaseEntity {
   @JoinColumn({ name: 'board_id' })
   board: Board;
 
-  @ManyToOne(() => Member, (member) => member.id)
+  @ManyToOne(() => Member, (member) => member.id, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'post_writer' })
   member: Member;
 }

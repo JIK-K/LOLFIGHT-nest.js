@@ -10,8 +10,16 @@ export class MemberMapper {
   }
 
   toDTO(memberEntity: Member): MemberDTO {
-    const { id, memberId, memberPw, memberName, memberGuild, memberGame } =
-      memberEntity;
+    const {
+      id,
+      memberId,
+      memberPw,
+      memberName,
+      memberGuild,
+      memberGame,
+      createdAt,
+      updatedAt,
+    } = memberEntity;
 
     return Builder<MemberDTO>()
       .id(id)
@@ -20,6 +28,8 @@ export class MemberMapper {
       .memberName(memberName)
       .memberGuild(memberGuild)
       .memberGame(memberGame)
+      .createdAt(createdAt)
+      .updatedAt(updatedAt)
       .build();
   }
 

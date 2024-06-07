@@ -62,8 +62,6 @@ export class PostService {
       .board(getBoardData)
       .build();
 
-    console.log('ddd', postEntity);
-
     const createdPost = this.postMapper.toDTO(
       await this.postRepository.save(postEntity),
     );
@@ -121,7 +119,7 @@ export class PostService {
         .leftJoinAndSelect('post.board', 'board')
         .where('deletedTrue = :deletedTrue', { deletedTrue: false })
         .getMany();
-      this.logger.log('postEntites', postEntites);
+      // this.logger.log('postEntites', postEntites);
     } else {
       this.logger.log('board', board);
       const getBoardData = await this.boardRepository
@@ -205,9 +203,6 @@ export class PostService {
       .andWhere('board.id = :boardId', { boardId: getBoardData.id })
       .getOne();
 
-    console.log('엔티티티쁘레쟈', postEntity);
-    console.log('블랠멤바 따라따따', getMemberData);
-
     const postLikeEntity = await this.postLikeRepository
       .createQueryBuilder('post_like')
       .leftJoinAndSelect('post_like.member', 'member')
@@ -218,8 +213,6 @@ export class PostService {
       })
       .andWhere('post_like.member_id = :memberId', { memberId: memberId })
       .getOne();
-
-    console.log('여기있네임마~', postLikeEntity);
 
     if (postLikeEntity !== null) {
       await this.postLikeRepository.remove(postLikeEntity);
@@ -277,8 +270,6 @@ export class PostService {
       })
       .andWhere('post_like.member_id = :memberId', { memberId: memberId })
       .getOne();
-
-    console.log('있나~읎나~', postLikeEntity);
 
     return postLikeEntity ? true : false;
   }
