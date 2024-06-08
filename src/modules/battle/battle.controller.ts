@@ -35,7 +35,7 @@ export class BattleController {
     this.logger.log(
       `Create Battle Results : ${battleDTO.teamA.guildName} vs ${battleDTO.teamB.guildName}`,
     );
-    this.socketGateWay.updateFightRoomStatus(fightRoomName);
+    // this.socketGateWay.updateFightRoomStatus(fightRoomName);
     return ResponseUtil.makeSuccessResponse(
       await this.battleService.createBattle(battleDTO),
     );
