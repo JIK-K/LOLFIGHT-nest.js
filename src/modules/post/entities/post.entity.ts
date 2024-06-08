@@ -26,7 +26,7 @@ export class Post extends BaseEntity {
   @Column({ name: 'post_title' })
   postTitle: string;
 
-  @Column({ name: 'post_content' })
+  @Column({ name: 'post_content', type: 'text' })
   postContent: string;
 
   // @Column({ name: 'post_writer' })

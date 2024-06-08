@@ -127,10 +127,10 @@ export class PostService {
         .where('board_type = :type', {
           type: board,
         })
-        .andWhere('deletedTrue = :deletedTrue', { deletedTrue: false })
+        // .andWhere('deletedTrue = :deletedTrue', { deletedTrue: false })
         .getOne();
 
-      this.logger.log('getBoardData', getBoardData);
+      // this.logger.log('getBoardData', getBoardData);
 
       postEntites = await this.postRepository
         .createQueryBuilder('post')
@@ -139,7 +139,7 @@ export class PostService {
         .where('board_id = :id', { id: getBoardData.id })
         .getMany();
 
-      this.logger.log('postEntites', postEntites);
+      // this.logger.log('postEntites', postEntites);
     }
 
     return await this.postMapper.toDTOList(postEntites);
