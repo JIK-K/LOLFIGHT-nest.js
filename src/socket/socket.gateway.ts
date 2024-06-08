@@ -652,7 +652,6 @@ export default class SocketGateway
       };
       this.guildFightingRoom.push(fightRoom);
       console.log('빈 방 생성 \n', this.guildFightingRoom);
-      console.log(fightRoom.team_A.members);
       socket.join(fightRoom.fightRoomName);
       socket.emit('searchFight', fightRoom);
       socket.to(me.roomName).emit('searchFight', fightRoom);
@@ -672,7 +671,21 @@ export default class SocketGateway
         (room.roomName = this.guildFightingRoom[roomIndex].team_B.roomName),
     );
     this.guildWaitingRoom[teamAIndex].status = '대기중';
+    // this.guildWaitingRoom[teamAIndex].members.forEach(
+    //   (member) => (member.isReady = false),
+    // );
+
     this.guildWaitingRoom[teamBIndex].status = '대기중';
+    // this.guildWaitingRoom[teamBIndex].members.forEach(
+    //   (member) => (member.isReady = false),
+    // );
+
     this.guildFightingRoom[roomIndex].status = '대기중';
+    // this.guildFightingRoom[roomIndex].team_A.members.forEach(
+    //   (member) => (member.isReady = false),
+    // );
+    // this.guildFightingRoom[roomIndex].team_B.members.forEach(
+    //   (member) => (member.isReady = false),
+    // );
   }
 }
