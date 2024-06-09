@@ -258,6 +258,7 @@ export class MemberService {
   async deleteMember(id: string): Promise<MemberDTO> {
     const memberEntity: Member = await this.memberRepository
       .createQueryBuilder('member')
+      .leftJoinAndSelect('member.memberGuild', 'guild')
       .where('member_id = :id', {
         id: id,
       })
@@ -265,6 +266,10 @@ export class MemberService {
 
     if (!CommonUtil.isValid(memberEntity)) {
       throw new HttpException(CODE_CONSTANT.NO_DATA, HttpStatus.BAD_REQUEST);
+    }
+
+    if (memberEntity.memberGuild) {
+      throw new HttpException(CODE_CONSTANT.EXIST_DATA, HttpStatus.BAD_REQUEST);
     }
 
     const removeData = await this.memberRepository.remove(memberEntity);

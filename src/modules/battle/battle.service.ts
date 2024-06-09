@@ -61,7 +61,6 @@ export class BattleService {
         guildName: battleDTO.teamA.guildName,
       })
       .getOne();
-    console.log(teamAGuildRecordEntity);
 
     const teamBGuildEntity: Guild = await this.guildRepository
       .createQueryBuilder('guild')
@@ -100,7 +99,7 @@ export class BattleService {
       const tierDifference = Math.abs(teamATierIndex - teamBTierIndex);
       const resultScore =
         20 +
-        (teamATierIndex > teamBTierIndex ? -tierDifference : tierDifference);
+        (teamBTierIndex > teamATierIndex ? -tierDifference : tierDifference);
 
       teamAGuildRecordEntity.recordVictory++;
       teamAGuildRecordEntity.recordLadder += resultScore;
@@ -141,7 +140,7 @@ export class BattleService {
       teamBGuildEntity.guildTier = this.calGuildTier(
         teamBGuildRecordEntity.recordLadder,
       );
-      teamAEntity.point = resultScore;
+      teamBEntity.point = resultScore;
     }
 
     await this.guildRepository.save(teamAGuildEntity);

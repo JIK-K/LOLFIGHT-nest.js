@@ -9,9 +9,10 @@ async function bootstrap() {
   });
 
   app.useStaticAssets(join(__dirname, '..', 'public'), {
-    prefix: `/public`,
+    prefix: `/api/public`,
   });
   app.enableCors();
+  app.setGlobalPrefix('api');
   await app.listen(3000);
 }
 bootstrap();

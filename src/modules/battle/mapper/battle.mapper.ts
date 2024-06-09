@@ -18,8 +18,8 @@ export class BattleMapper {
       .battleLength(battleLength)
       .teamA(teamA)
       .teamB(teamB)
-      .createAt(battleEntity.createdAt)
-      .updateAt(battleEntity.updatedAt)
+      .createdAt(battleEntity.createdAt)
+      .updatedAt(battleEntity.updatedAt)
       .build();
   }
 

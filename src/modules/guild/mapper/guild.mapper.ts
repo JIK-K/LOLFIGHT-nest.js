@@ -30,8 +30,8 @@ export class GuildMapper {
       .guildTier(guildTier)
       .guildIcon(guildIcon)
       .guildRecord(guildRecord)
-      .createAt(createdAt)
-      .updateAt(updatedAt)
+      .createdAt(createdAt)
+      .updatedAt(updatedAt)
       .build();
   }
 
