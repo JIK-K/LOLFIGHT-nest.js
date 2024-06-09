@@ -564,6 +564,11 @@ export default class SocketGateway
     client.emit('roomList', guildWaitingList);
   }
 
+  /**
+   * 내전 블루-레드 진영 변경
+   * @param client
+   * @param data
+   */
   @SubscribeMessage('changeTeam')
   handleChangeTeam(
     @ConnectedSocket() client: Socket,
@@ -601,6 +606,38 @@ export default class SocketGateway
     } else {
       console.log('[ERROR] - fightRoomIndex를 찾을 수 없음.');
     }
+  }
+
+  /**
+   * 길드 내전 종료
+   * @param client
+   * @param data
+   */
+  @SubscribeMessage('endOfGame')
+  handleEndOfGame(
+    @ConnectedSocket() client: Socket,
+    @MessageBody()
+    data: {
+      fightRoomName: string;
+    },
+  ) {
+    const fightRoomIndex = this.guildFightingRoom.findIndex(
+      (room) => room.fightRoomName === data.fightRoomName,
+    );
+
+    this.guildFightingRoom[fightRoomIndex].status = '매칭중';
+    this.guildFightingRoom[fightRoomIndex].team_A.members.forEach((member) => {
+      member.isReady = false;
+    });
+    this.guildFightingRoom[fightRoomIndex].team_B.members.forEach((member) => {
+      member.isReady = false;
+    });
+    this.guildFightingRoom[fightRoomIndex].readyCount = 0;
+
+    client.emit('endOfGame', this.guildFightingRoom[fightRoomIndex]);
+    client
+      .to(this.guildFightingRoom[fightRoomIndex].fightRoomName)
+      .emit('endOfGame', this.guildFightingRoom[fightRoomIndex]);
   }
 
   //========================================================================//
