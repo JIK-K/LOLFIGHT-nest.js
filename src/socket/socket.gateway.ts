@@ -518,8 +518,9 @@ export default class SocketGateway
     for (const fightRoom of this.guildFightingRoom) {
       if (fightRoom.fightRoomName === data.fightRoom) {
         //@todo 주석해제
-        // if (fightRoom.readyCount === 10) {//10명다 준비 됬을때
-        if (fightRoom.readyCount === 2) {
+        if (fightRoom.readyCount === 10) {
+          //10명다 준비 됬을때
+          // if (fightRoom.readyCount === 2) {
           //디버깅용
           console.log(
             '시작한다 : ' +
