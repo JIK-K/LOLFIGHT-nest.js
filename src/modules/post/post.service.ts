@@ -121,7 +121,7 @@ export class PostService {
         .getMany();
       // this.logger.log('postEntites', postEntites);
     } else {
-      this.logger.log('board', board);
+      // this.logger.log('board', board);
       const getBoardData = await this.boardRepository
         .createQueryBuilder('board')
         .where('board_type = :type', {
@@ -137,6 +137,7 @@ export class PostService {
         .leftJoinAndSelect('post.member', 'member')
         .leftJoinAndSelect('post.board', 'board')
         .where('board_id = :id', { id: getBoardData.id })
+        .andWhere('deletedTrue = :deletedTrue', { deletedTrue: false })
         .getMany();
 
       // this.logger.log('postEntites', postEntites);
