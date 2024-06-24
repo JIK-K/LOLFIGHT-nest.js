@@ -22,7 +22,7 @@ export class MemberGame extends BaseEntity {
   summonerId: bigint;
 
   @OneToOne(() => Member, (member) => member.memberGame, {
-    onDelete: 'CASCADE',
+    onDelete: 'SET NULL',
   })
   member: Member;
 }
