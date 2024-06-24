@@ -24,11 +24,11 @@ interface WaitingRoom {
   members: MatchMembers[];
   roomName: string; //guildName-roomMaster의 방
   memberCount: number; //5명
+  isReady: boolean;
   status: string; //대기중 : "waiting", 진행중: "Fighting"
 }
 interface MatchMembers {
   member: MemberDTO;
-  isReady: boolean;
   isLeader: boolean;
 }
 
@@ -174,6 +174,7 @@ export default class SocketGateway
       roomName:
         roomData.members.member.memberGuild.guildName + '-' + roomData.roomName,
       memberCount: roomData.memberCount,
+      isReady: false,
       status: roomData.status,
     };
 
@@ -301,10 +302,10 @@ export default class SocketGateway
         // me 객체를 찾았으면 isReady 속성을 false로 설정
         const updatedMembers = me.members.map((member) => ({
           ...member,
-          isReady: false,
           isLeader: false,
         }));
         me.members = updatedMembers;
+        me.isReady = false;
         // guildWaitingRoom 배열에서 해당 방의 인덱스를 찾아 업데이트
         const index = this.guildWaitingRoom.findIndex(
           (room) => room.roomName === data.roomName,
@@ -446,9 +447,9 @@ export default class SocketGateway
         );
 
         if (teamAMemberIndex !== -1) {
-          fightRoom.team_A.members[teamAMemberIndex].isReady = true;
+          fightRoom.team_A.isReady = true;
         } else if (teamBMemberIndex !== -1) {
-          fightRoom.team_B.members[teamBMemberIndex].isReady = true;
+          fightRoom.team_B.isReady = true;
         } else {
           console.log(
             '[ERROR] - Team_A 또는 Team_B에서 Member를 찾을 수 없음.',
@@ -487,9 +488,9 @@ export default class SocketGateway
         );
 
         if (teamAMemberIndex !== -1) {
-          fightRoom.team_A.members[teamAMemberIndex].isReady = false;
+          fightRoom.team_A.isReady = false;
         } else if (teamBMemberIndex !== -1) {
-          fightRoom.team_B.members[teamBMemberIndex].isReady = false;
+          fightRoom.team_B.isReady = false;
         } else {
           console.log(
             '[ERROR] - Team_A 또는 Team_B에서 Member를 찾을 수 없음.',
@@ -517,19 +518,7 @@ export default class SocketGateway
   ) {
     for (const fightRoom of this.guildFightingRoom) {
       if (fightRoom.fightRoomName === data.fightRoom) {
-        //@todo 주석해제
-        if (fightRoom.readyCount === 10) {
-          //10명다 준비 됬을때
-          // if (fightRoom.readyCount === 2) {
-          //디버깅용
-          console.log(
-            '시작한다 : ' +
-              fightRoom.fightRoomName +
-              '팀1 : ' +
-              fightRoom.team_A.roomName +
-              '팀2 : ' +
-              fightRoom.team_B.roomName,
-          );
+        if (fightRoom.readyCount === 2) {
           fightRoom.status = '게임중';
           fightRoom.team_A.status = '게임중';
           fightRoom.team_B.status = '게임중';
@@ -627,12 +616,8 @@ export default class SocketGateway
     );
 
     this.guildFightingRoom[fightRoomIndex].status = '매칭중';
-    this.guildFightingRoom[fightRoomIndex].team_A.members.forEach((member) => {
-      member.isReady = false;
-    });
-    this.guildFightingRoom[fightRoomIndex].team_B.members.forEach((member) => {
-      member.isReady = false;
-    });
+    this.guildFightingRoom[fightRoomIndex].team_A.isReady = false;
+    this.guildFightingRoom[fightRoomIndex].team_B.isReady = false;
     this.guildFightingRoom[fightRoomIndex].readyCount = 0;
 
     client.emit('endOfGame', this.guildFightingRoom[fightRoomIndex]);
