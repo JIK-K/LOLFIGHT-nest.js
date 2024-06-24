@@ -299,7 +299,6 @@ export default class SocketGateway
     for (const room of this.guildWaitingRoom) {
       if (room.roomName === data.roomName) {
         me = room;
-        // me 객체를 찾았으면 isReady 속성을 false로 설정
         const updatedMembers = me.members.map((member) => ({
           ...member,
           isLeader: false,
@@ -694,21 +693,9 @@ export default class SocketGateway
         (room.roomName = this.guildFightingRoom[roomIndex].team_B.roomName),
     );
     this.guildWaitingRoom[teamAIndex].status = '대기중';
-    // this.guildWaitingRoom[teamAIndex].members.forEach(
-    //   (member) => (member.isReady = false),
-    // );
 
     this.guildWaitingRoom[teamBIndex].status = '대기중';
-    // this.guildWaitingRoom[teamBIndex].members.forEach(
-    //   (member) => (member.isReady = false),
-    // );
 
     this.guildFightingRoom[roomIndex].status = '대기중';
-    // this.guildFightingRoom[roomIndex].team_A.members.forEach(
-    //   (member) => (member.isReady = false),
-    // );
-    // this.guildFightingRoom[roomIndex].team_B.members.forEach(
-    //   (member) => (member.isReady = false),
-    // );
   }
 }
