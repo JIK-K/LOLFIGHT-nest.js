@@ -129,8 +129,26 @@ export default class SocketGateway
     messageData: { fightRoom: string; memberName: string; message: string },
   ) {
     const message = `[${messageData.memberName}]-${messageData.message}`;
-    client.emit('fightMessage', message);
-    client.to(messageData.fightRoom).emit('fightMessage', message);
+
+    const fightRoomIndex = this.guildFightingRoom.findIndex(
+      (room) => room.fightRoomName === messageData.fightRoom,
+    );
+    if (
+      fightRoomIndex !== -1 &&
+      this.guildFightingRoom[fightRoomIndex].team_B !== null
+    ) {
+      client.emit('fightMessage', message);
+      client.to(messageData.fightRoom).emit('fightMessage', message);
+      client
+        .to(this.guildFightingRoom[fightRoomIndex].team_A.roomName)
+        .emit('fightMessage', message);
+      client
+        .to(this.guildFightingRoom[fightRoomIndex].team_B.roomName)
+        .emit('fightMessage', message);
+    } else {
+      client.emit('fightMessage', message);
+      client.to(messageData.fightRoom).emit('fightMessage', message);
+    }
   }
 
   /**
@@ -271,6 +289,7 @@ export default class SocketGateway
         room.members.push(data.matchMember);
         room.memberCount++;
         client.join(room.roomName);
+
         client.emit('joinRoom', room);
         client.to(data.roomName).emit('joinRoom', room);
 
@@ -454,9 +473,25 @@ export default class SocketGateway
             '[ERROR] - Team_A 또는 Team_B에서 Member를 찾을 수 없음.',
           );
         }
-        client.emit('readyFight', fightRoom);
-        client.to(fightRoom.fightRoomName).emit('readyFight', fightRoom);
-        console.log(fightRoom);
+
+        const fightRoomIndex = this.guildFightingRoom.findIndex(
+          (room) => room.fightRoomName === data.fightRoom,
+        );
+        if (fightRoomIndex !== -1) {
+          client.emit('readyFight', fightRoom);
+
+          // client.to(fightRoom.fightRoomName).emit('readyFight', fightRoom);
+
+          client
+            .to(this.guildFightingRoom[fightRoomIndex].team_A.roomName)
+            .emit('readyFight', this.guildFightingRoom[fightRoomIndex]);
+          client
+            .to(this.guildFightingRoom[fightRoomIndex].team_B.roomName)
+            .emit('readyFight', this.guildFightingRoom[fightRoomIndex]);
+          console.log('readyFight', fightRoom);
+        } else {
+          console.log('[ERROR] - fightRoomIndex를 찾을 수 없음.');
+        }
       }
     }
   }
@@ -495,9 +530,25 @@ export default class SocketGateway
             '[ERROR] - Team_A 또는 Team_B에서 Member를 찾을 수 없음.',
           );
         }
-        client.emit('cancelReady', fightRoom);
-        client.to(fightRoom.fightRoomName).emit('cancelReady', fightRoom);
-        console.log(fightRoom);
+
+        const fightRoomIndex = this.guildFightingRoom.findIndex(
+          (room) => room.fightRoomName === data.fightRoom,
+        );
+        if (fightRoomIndex !== -1) {
+          client.emit('cancelReady', fightRoom);
+
+          // client.to(fightRoom.fightRoomName).emit('cancelReady', fightRoom);
+
+          client
+            .to(this.guildFightingRoom[fightRoomIndex].team_A.roomName)
+            .emit('cancelReady', this.guildFightingRoom[fightRoomIndex]);
+          client
+            .to(this.guildFightingRoom[fightRoomIndex].team_B.roomName)
+            .emit('cancelReady', this.guildFightingRoom[fightRoomIndex]);
+          console.log('cancelReady', fightRoom);
+        } else {
+          console.log('[ERROR] - fightRoomIndex를 찾을 수 없음.');
+        }
       }
     }
   }
@@ -522,11 +573,26 @@ export default class SocketGateway
           fightRoom.team_A.status = '게임중';
           fightRoom.team_B.status = '게임중';
 
-          client.emit('startFight', fightRoom);
-          client.to(fightRoom.fightRoomName).emit('startFight', fightRoom);
+          const fightRoomIndex = this.guildFightingRoom.findIndex(
+            (room) => room.fightRoomName === data.fightRoom,
+          );
+          if (fightRoomIndex !== -1) {
+            client.emit('startFight', fightRoom);
+            client.to(fightRoom.fightRoomName).emit('startFight', fightRoom);
+
+            client
+              .to(this.guildFightingRoom[fightRoomIndex].team_A.roomName)
+              .emit('startFight', this.guildFightingRoom[fightRoomIndex]);
+
+            client
+              .to(this.guildFightingRoom[fightRoomIndex].team_B.roomName)
+              .emit('startFight', this.guildFightingRoom[fightRoomIndex]);
+          } else {
+            console.log('[ERROR] - fightRoomIndex를 찾을 수 없음.');
+          }
         } else {
           console.log(
-            '[ERROR] - ReadyCount가 10이 되지않음 : ' + fightRoom.readyCount,
+            '[ERROR] - ReadyCount가 2가 되지않음 : ' + fightRoom.readyCount,
           );
         }
       }
@@ -589,8 +655,15 @@ export default class SocketGateway
       console.log('변경후', this.guildFightingRoom[fightRoomIndex]);
 
       client.emit('changeTeam', this.guildFightingRoom[fightRoomIndex]);
+      // client
+      //   .to(this.guildFightingRoom[fightRoomIndex].fightRoomName)
+      //   .emit('changeTeam', this.guildFightingRoom[fightRoomIndex]);
+
       client
-        .to(this.guildFightingRoom[fightRoomIndex].fightRoomName)
+        .to(this.guildFightingRoom[fightRoomIndex].team_A.roomName)
+        .emit('changeTeam', this.guildFightingRoom[fightRoomIndex]);
+      client
+        .to(this.guildFightingRoom[fightRoomIndex].team_B.roomName)
         .emit('changeTeam', this.guildFightingRoom[fightRoomIndex]);
     } else {
       console.log('[ERROR] - fightRoomIndex를 찾을 수 없음.');
@@ -620,8 +693,15 @@ export default class SocketGateway
     this.guildFightingRoom[fightRoomIndex].readyCount = 0;
 
     client.emit('endOfGame', this.guildFightingRoom[fightRoomIndex]);
+    // client
+    //   .to(this.guildFightingRoom[fightRoomIndex].fightRoomName)
+    //   .emit('endOfGame', this.guildFightingRoom[fightRoomIndex]);
+
     client
-      .to(this.guildFightingRoom[fightRoomIndex].fightRoomName)
+      .to(this.guildFightingRoom[fightRoomIndex].team_A.roomName)
+      .emit('endOfGame', this.guildFightingRoom[fightRoomIndex]);
+    client
+      .to(this.guildFightingRoom[fightRoomIndex].team_B.roomName)
       .emit('endOfGame', this.guildFightingRoom[fightRoomIndex]);
   }
 
@@ -651,9 +731,9 @@ export default class SocketGateway
       console.log('매칭완료 \n', this.guildFightingRoom);
       socket.emit('searchFight', this.guildFightingRoom[emptyIndex]);
       socket.join(this.guildFightingRoom[emptyIndex].fightRoomName);
-      socket
-        .to(this.guildFightingRoom[emptyIndex].fightRoomName)
-        .emit('searchFight', this.guildFightingRoom[emptyIndex]);
+      // socket
+      //   .to(this.guildFightingRoom[emptyIndex].fightRoomName)
+      //   .emit('searchFight', this.guildFightingRoom[emptyIndex]);
 
       socket
         .to(this.guildFightingRoom[emptyIndex].team_A.roomName)
