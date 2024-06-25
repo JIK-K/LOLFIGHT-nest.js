@@ -15,7 +15,7 @@ export class FileController {
         '..',
         'public',
         'files',
-        'lolfight-desktop-0.0.1 Setup.exe',
+        'lolfight-desktop-1.0.0.Setup.exe',
       ),
     );
     console.log(filePath);
@@ -24,7 +24,7 @@ export class FileController {
       res.set({
         'Content-Type': 'application/octet-stream',
         'Content-Disposition':
-          'attachment; filename=lolfight-desktop-0.0.1 Setup.exe',
+          'attachment; filename=lolfight-desktop-1.0.0.Setup.exe',
       });
 
       const fileStream = fs.createReadStream(filePath);
