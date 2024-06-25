@@ -33,7 +33,7 @@ export class Member extends BaseEntity {
   @JoinColumn({ name: 'member_guild' })
   memberGuild: Guild;
 
-  @OneToOne(() => MemberGame, { onDelete: 'CASCADE' })
+  @OneToOne(() => MemberGame, { onDelete: 'SET NULL' })
   @JoinColumn({ name: 'member_game' })
   memberGame: MemberGame;
 
