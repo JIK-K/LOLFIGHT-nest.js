@@ -81,7 +81,6 @@ export default class SocketGateway
     const memberName = client.handshake.query.memberName;
     const guildName = client.handshake.query.guildName;
     const namespace = `${guildName}-${memberName}`;
-    console.log(namespace);
 
     if (!this.namespaces.has(namespace)) {
       this.namespaces.set(namespace, []);
@@ -109,7 +108,7 @@ export default class SocketGateway
     const message = `[${messageData.memberName}]-${messageData.message}`;
 
     this.namespaces.forEach((socketsInNamespace, namespace) => {
-      if (namespace.includes(guildName)) {
+      if (namespace.split('-')[0] === guildName) {
         socketsInNamespace.forEach((socket) => {
           socket.emit('message', message);
         });
@@ -138,7 +137,7 @@ export default class SocketGateway
       this.guildFightingRoom[fightRoomIndex].team_B !== null
     ) {
       client.emit('fightMessage', message);
-      client.to(messageData.fightRoom).emit('fightMessage', message);
+      // client.to(messageData.fightRoom).emit('fightMessage', message);
       client
         .to(this.guildFightingRoom[fightRoomIndex].team_A.roomName)
         .emit('fightMessage', message);
@@ -162,7 +161,7 @@ export default class SocketGateway
     @MessageBody() data: { guildName: string },
   ) {
     this.namespaces.forEach((socketInNamespace, namespace) => {
-      if (namespace.includes(data.guildName)) {
+      if (namespace.split('-')[0] === data.guildName) {
         this.onlineMembers.add(namespace.substring(data.guildName.length + 1));
         console.log(this.onlineMembers);
         const onlineMembersArray: string[] = Array.from(this.onlineMembers);
@@ -246,7 +245,9 @@ export default class SocketGateway
         client.to(room.roomName).emit('leaveRoom', null);
 
         client.leave(room.roomName);
-      } else if (room.roomName.includes(data.matchMember.member.memberName)) {
+      } else if (
+        room.roomName.split('-')[1] === data.matchMember.member.memberName
+      ) {
         client.emit('leaveRoom', null);
         client.to(room.roomName).emit('leaveRoom', null);
 
