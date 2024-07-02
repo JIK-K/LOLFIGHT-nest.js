@@ -88,9 +88,10 @@ export class GuildService {
     let guildIconPath: string | undefined; // 파일이 저장될 경로
 
     if (file) {
-      const fileName = `${guildDTO.guildName}.${file.originalname
-        .split('.')
-        .pop()}`;
+      // const fileName = `${guildDTO.guildName}.${file.originalname
+      //   .split('.')
+      //   .pop()}`;
+      const fileName = `${guildDTO.guildName}.png`;
       const filePath = join(__dirname, '../../..', 'public/guild', fileName);
       if (existsSync(filePath)) {
         rmSync(filePath);

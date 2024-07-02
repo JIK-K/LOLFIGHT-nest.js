@@ -24,7 +24,7 @@ export class GuildInvite extends BaseEntity {
   @JoinColumn({ name: 'member_id' })
   memberId: Member;
 
-  @ManyToOne(() => Guild, (guild) => guild.id)
+  @ManyToOne(() => Guild, (guild) => guild.id, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'guild_id' })
   guildId: Guild;
 }
