@@ -428,4 +428,27 @@ export class GuildService {
       await this.guildInviteRepository.remove(inviteEntity),
     );
   }
+
+  /**
+   * GuildMaster 변경
+   * @param memberName
+   * @param guildName
+   * @returns
+   */
+  async changeGuildMaster(memberName: string, guildName: string) {
+    const targetGuild: Guild = await this.guildRepository
+      .createQueryBuilder('guild')
+      .where('guild_name = :guildName', {
+        guildName: guildName,
+      })
+      .getOne();
+
+    if (!targetGuild) {
+      throw new HttpException(CODE_CONSTANT.NO_DATA, HttpStatus.BAD_REQUEST);
+    }
+
+    targetGuild.guildMaster = memberName;
+
+    return this.guildMapper.toDTO(await this.guildRepository.save(targetGuild));
+  }
 }
