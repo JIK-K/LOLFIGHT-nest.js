@@ -59,8 +59,14 @@ export default class SocketGateway
     const namespaceToRemove: string | undefined = Array.from(
       this.namespaces.keys(),
     ).find((namespace) => {
-      return namespace;
+      const clients = this.namespaces.get(namespace);
+      return (
+        clients &&
+        clients.some((clientInNamespace) => clientInNamespace.id === client.id)
+      );
     });
+
+    console.log('NameSpace : ', namespaceToRemove);
 
     if (namespaceToRemove) {
       console.log('수정전', this.guildWaitingRoom);
@@ -72,8 +78,18 @@ export default class SocketGateway
       client.to(namespaceToRemove).emit('leaveRoom', null);
       client.leave(namespaceToRemove);
 
+      const clients = this.namespaces.get(namespaceToRemove);
+      if (clients) {
+        this.namespaces.set(
+          namespaceToRemove,
+          clients.filter(
+            (clientInNamespace) => clientInNamespace.id !== client.id,
+          ),
+        );
+      }
       console.log('수정후', this.guildWaitingRoom);
       this.onlineMembers.delete(namespaceToRemove.split('-')[1]);
+      console.log('수정후 onlineMembers : ', this.onlineMembers);
     }
   }
 
@@ -87,10 +103,12 @@ export default class SocketGateway
     }
     this.namespaces.get(namespace).push(client);
 
+    this.onlineMembers.add(memberName);
+
     this.logger.log(
       `Client Connected : ${client.id} ${client.request.connection.remoteAddress}`,
     );
-    console.log(this.onlineMembers);
+    console.log('onlineMembers : ', this.onlineMembers);
   }
 
   /**
@@ -162,7 +180,7 @@ export default class SocketGateway
   ) {
     this.namespaces.forEach((socketInNamespace, namespace) => {
       if (namespace.split('-')[0] === data.guildName) {
-        this.onlineMembers.add(namespace.substring(data.guildName.length + 1));
+        // this.onlineMembers.add(namespace.substring(data.guildName.length + 1));
         console.log(this.onlineMembers);
         const onlineMembersArray: string[] = Array.from(this.onlineMembers);
         clinet.emit('online', onlineMembersArray);
