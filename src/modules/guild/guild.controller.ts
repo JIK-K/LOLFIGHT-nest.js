@@ -185,4 +185,21 @@ export class GuildController {
       await this.guildService.inviteReject(memberId, guildId),
     );
   }
+
+  /**
+   * Guild Master 변경
+   * @param memberName
+   * @param guildName
+   * @returns
+   */
+  @Get('/changeMaster')
+  async changeMaster(
+    @Query('memberName') memberName: string,
+    @Query('guildName') guildName: string,
+  ): Promise<ResponseDTO<GuildDTO>> {
+    this.logger.log(`Change GuildMaster ${guildName} -> ${memberName}`);
+    return ResponseUtil.makeSuccessResponse(
+      await this.guildService.changeGuildMaster(memberName, guildName),
+    );
+  }
 }
