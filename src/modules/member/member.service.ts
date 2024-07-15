@@ -151,7 +151,7 @@ export class MemberService {
           })
           .getOne();
 
-        if (memberDTO.id === duplicateData.id) {
+        if (!duplicateData) {
           existGameData.gameName = memberDTO.memberGame.gameName;
           existGameData.gameTier = memberDTO.memberGame.gameTier;
           existGameData.summonerId = memberDTO.memberGame.summonerId;
@@ -297,5 +297,33 @@ export class MemberService {
     console.log(memberEntity);
 
     return memberEntity.memberGuild.guildName;
+  }
+
+  /**
+   * Member LOL계정 삭제
+   * @param memberId
+   * @returns
+   */
+  async deleteMemberGame(memberId: string): Promise<MemberDTO> {
+    const memberEntity: Member = await this.memberRepository
+      .createQueryBuilder('member')
+      .leftJoinAndSelect('member.memberGame', 'member_game')
+      .leftJoinAndSelect('member.memberGuild', 'guild')
+      .where('member_id = :id', {
+        id: memberId,
+      })
+      .getOne();
+
+    if (!memberEntity) {
+      throw new Error('Member Not Found');
+    }
+
+    if (!memberEntity.memberGame) {
+      throw new HttpException(CODE_CONSTANT.NO_DATA, HttpStatus.BAD_REQUEST);
+    }
+
+    await this.memberGameRepository.remove(memberEntity.memberGame);
+    memberEntity.memberGame = null;
+    return this.memberMapper.toDTO(memberEntity);
   }
 }
