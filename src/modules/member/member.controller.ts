@@ -135,6 +135,20 @@ export class MemberController {
     );
   }
 
+  /**
+   * Member LOL계정 삭제
+   * @param memberId
+   * @returns
+   */
+  @Patch('/deleteSummoner')
+  async deleteSummonerData(
+    @Query('memberId') memberId: string,
+  ): Promise<ResponseDTO<MemberDTO>> {
+    return ResponseUtil.makeSuccessResponse(
+      await this.memberService.deleteMemberGame(memberId),
+    );
+  }
+
   // @UseGuards(AuthGuard('access'))
   // @Get('/login')
   // async loginMember(
