@@ -189,6 +189,16 @@ export default class SocketGateway
   }
 
   /**
+   * 내전 방 개수
+   * @param client
+   */
+  @SubscribeMessage('waitingRoom')
+  handleWaitingRoom(@ConnectedSocket() client: Socket) {
+    const roomLength = this.guildWaitingRoom.length;
+    client.emit('waitingRoom', roomLength);
+  }
+
+  /**
    * 길드전 방 생성
    * @param client
    * @param data
