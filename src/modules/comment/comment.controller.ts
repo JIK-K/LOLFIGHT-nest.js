@@ -37,7 +37,6 @@ export class CommentController {
     @Query('postId') postId: number,
     @Query('postBoard') postBoard: string,
   ): Promise<ResponseDTO<CommentDTO[]>> {
-    this.logger.log(`하지마루요 : ${postId}`);
     return ResponseUtil.makeSuccessResponse(
       await this.commentService.getCommentList(postId, postBoard),
     );

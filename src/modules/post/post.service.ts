@@ -112,25 +112,19 @@ export class PostService {
   async getPostList(board: string): Promise<PostDTO[]> {
     let postEntites: Post[];
     if (board == '전체') {
-      // postEntites = await this.postRepository.find();
       postEntites = await this.postRepository
         .createQueryBuilder('post')
         .leftJoinAndSelect('post.member', 'member')
         .leftJoinAndSelect('post.board', 'board')
         .where('deletedTrue = :deletedTrue', { deletedTrue: false })
         .getMany();
-      // this.logger.log('postEntites', postEntites);
     } else {
-      // this.logger.log('board', board);
       const getBoardData = await this.boardRepository
         .createQueryBuilder('board')
         .where('board_type = :type', {
           type: board,
         })
-        // .andWhere('deletedTrue = :deletedTrue', { deletedTrue: false })
         .getOne();
-
-      // this.logger.log('getBoardData', getBoardData);
 
       postEntites = await this.postRepository
         .createQueryBuilder('post')
@@ -139,8 +133,6 @@ export class PostService {
         .where('board_id = :id', { id: getBoardData.id })
         .andWhere('deletedTrue = :deletedTrue', { deletedTrue: false })
         .getMany();
-
-      // this.logger.log('postEntites', postEntites);
     }
 
     return await this.postMapper.toDTOList(postEntites);
@@ -152,15 +144,12 @@ export class PostService {
    * @returns {Promise<PostDTO>}
    */
   async getPost(board: string, postId: number): Promise<PostDTO> {
-    this.logger.log('board, postId', board, postId);
     const getBoardData = await this.boardRepository
       .createQueryBuilder('board')
       .where('board_type = :type', {
         type: board,
       })
       .getOne();
-
-    this.logger.log('getBoardData', getBoardData);
 
     const postEntity = await this.postRepository
       .createQueryBuilder('post')
@@ -172,7 +161,6 @@ export class PostService {
 
     postEntity.postViews += 1;
 
-    this.logger.log('postEntity', postEntity);
     const postDTO = await this.postMapper.toDTO(postEntity);
     postDTO.postBoard = board;
 
@@ -241,8 +229,6 @@ export class PostService {
    * @returns
    */
   async getPostLike(postDTO: PostDTO, memberId: string): Promise<boolean> {
-    console.log('postDTO', postDTO);
-
     const getBoardData = await this.boardRepository
       .createQueryBuilder('board')
       .where('board_type = :type', {

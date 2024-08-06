@@ -63,7 +63,6 @@ export class CommentService {
       commentEntity.orderNumber = getPostData.postComments + 1; // 순서
     } else {
       // 부모 댓글 존재
-      this.logger.log('부모 댓글 존재@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
       const getParentCommentData = await this.commentRepository.findOne({
         where: { id: commentDTO.parentComment },
       });
@@ -72,8 +71,6 @@ export class CommentService {
       commentEntity.orderNumber = getParentCommentData.orderNumber; // 순서
       commentEntity.parentComment = getParentCommentData;
     }
-
-    this.logger.log('Create Comment : ', commentDTO);
 
     const createdComment = this.commentMapper.toDTO(
       await this.commentRepository.save(commentEntity),
@@ -91,31 +88,12 @@ export class CommentService {
     postId: number,
     postBoard: string,
   ): Promise<CommentDTO[]> {
-    this.logger.log(`id : ${postId}`);
-    this.logger.log(`boardId : ${postBoard}`);
-
     const getBoardData = await this.boardRepository
       .createQueryBuilder('board')
       .where('board_type = :type', {
         type: postBoard,
       })
       .getOne();
-
-    // const commentEntities = await this.commentRepository.find({
-    //   where: { postId: postId, postBoardId: getBoardData.id },
-    //   order: { orderNumber: 'ASC' },
-    // });
-
-    // const commentEntities = await this.commentRepository
-    //   .createQueryBuilder('comment')
-    //   .leftJoinAndSelect('comment.member', 'member')
-    //   .where('comment.postId = :postId', { postId: postId })
-    //   .andWhere('comment.postBoardId = :postBoardId', {
-    //     postBoardId: getBoardData.id,
-    //   })
-    //   .orderBy('comment.orderNumber', 'ASC')
-    //   .getMany();
-
     const commentEntities = await this.commentRepository
       .createQueryBuilder('comment')
       .leftJoinAndSelect('comment.member', 'member')
@@ -126,8 +104,6 @@ export class CommentService {
       .orderBy('comment.orderNumber', 'ASC')
       .addOrderBy('comment.createdAt', 'ASC')
       .getMany();
-
-    this.logger.log('commentEntities : ', commentEntities);
 
     return this.commentMapper.toDTOList(commentEntities);
   }
