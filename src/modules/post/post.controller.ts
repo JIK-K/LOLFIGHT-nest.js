@@ -37,8 +37,7 @@ export class PostController {
     file: Express.Multer.File,
     @Body() postDTO: PostDTO,
   ): Promise<ResponseDTO<PostDTO>> {
-    this.logger.log('postDTO', postDTO);
-    // this.logger.log(`Create Post : ${postDTO}`);
+    // this.logger.log('postDTO', postDTO);
 
     return ResponseUtil.makeSuccessResponse(
       await this.postService.createPost(postDTO),
@@ -69,7 +68,7 @@ export class PostController {
   async getPostList(
     @Query('board') board: string,
   ): Promise<ResponseDTO<PostDTO[]>> {
-    this.logger.log(`Get Post List : ${board}`);
+    // this.logger.log(`Get Post List : ${board}`);
     return ResponseUtil.makeSuccessResponse(
       await this.postService.getPostList(board),
     );
@@ -85,7 +84,7 @@ export class PostController {
     @Query('board') board: string,
     @Query('postId') postId: number,
   ): Promise<ResponseDTO<PostDTO>> {
-    this.logger.log(`Get Post : ${board}, ${postId}`);
+    // this.logger.log(`Get Post : ${board}, ${postId}`);
     return ResponseUtil.makeSuccessResponse(
       await this.postService.getPost(board, postId),
     );

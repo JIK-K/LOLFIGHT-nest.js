@@ -66,11 +66,7 @@ export default class SocketGateway
       );
     });
 
-    console.log('NameSpace : ', namespaceToRemove);
-
     if (namespaceToRemove) {
-      console.log('수정전', this.guildWaitingRoom);
-
       const roomIndex = this.guildWaitingRoom.findIndex((room) =>
         room.roomName.includes(namespaceToRemove.split('-')[1]),
       );
@@ -87,9 +83,7 @@ export default class SocketGateway
           ),
         );
       }
-      console.log('수정후', this.guildWaitingRoom);
       this.onlineMembers.delete(namespaceToRemove.split('-')[1]);
-      console.log('수정후 onlineMembers : ', this.onlineMembers);
     }
   }
 
@@ -108,7 +102,6 @@ export default class SocketGateway
     this.logger.log(
       `Client Connected : ${client.id} ${client.request.connection.remoteAddress}`,
     );
-    console.log('onlineMembers : ', this.onlineMembers);
   }
 
   /**
@@ -181,7 +174,6 @@ export default class SocketGateway
     this.namespaces.forEach((socketInNamespace, namespace) => {
       if (namespace.split('-')[0] === data.guildName) {
         // this.onlineMembers.add(namespace.substring(data.guildName.length + 1));
-        console.log(this.onlineMembers);
         const onlineMembersArray: string[] = Array.from(this.onlineMembers);
         clinet.emit('online', onlineMembersArray);
       }
@@ -240,7 +232,6 @@ export default class SocketGateway
       if (!isDuplicate) {
         client.join(newRoom.roomName);
         this.guildWaitingRoom.push(newRoom);
-        console.log(this.guildWaitingRoom);
         client.emit('createRoom', newRoom);
       }
     }
@@ -321,10 +312,7 @@ export default class SocketGateway
 
         client.emit('joinRoom', room);
         client.to(data.roomName).emit('joinRoom', room);
-
-        console.log(room);
       } else {
-        console.log('Room is Full');
         client.emit('joinRoom', 'full');
       }
     }
@@ -379,7 +367,6 @@ export default class SocketGateway
       if (
         this.guildFightingRoom[existingRoomIndex].team_A.roomName == me.roomName
       ) {
-        console.log('다시돌린다. 내가 team_A일때');
         this.guildFightingRoom[existingRoomIndex].team_A =
           this.guildFightingRoom[existingRoomIndex].team_B;
         this.guildFightingRoom[existingRoomIndex].team_B = null;
@@ -398,8 +385,6 @@ export default class SocketGateway
 
         this.matchMaking(client, me);
       } else {
-        console.log('다시돌린다. 내가 team_B일때');
-        console.log(me.members);
         this.guildFightingRoom[existingRoomIndex].team_B = null;
 
         //이전에 내가 속해있는 방에다가 내가 나갔다는걸 알리고
@@ -448,7 +433,6 @@ export default class SocketGateway
       );
       this.guildWaitingRoom[waitingIndex].status = '대기중';
       this.guildWaitingRoom[waitingIndex].members[0].isLeader = false;
-      console.log(this.guildWaitingRoom[waitingIndex]);
       client.emit('searchCancel', this.guildWaitingRoom[waitingIndex]);
       client
         .to(this.guildFightingRoom[index].team_A.roomName)
@@ -461,7 +445,6 @@ export default class SocketGateway
         .emit('searchCancel');
 
       this.guildFightingRoom.splice(index, 1);
-      console.log('searchCancel', this.guildFightingRoom);
     } else {
       console.log('error');
     }
@@ -483,7 +466,6 @@ export default class SocketGateway
   ) {
     for (const fightRoom of this.guildFightingRoom) {
       if (fightRoom.fightRoomName === data.fightRoom) {
-        console.log(fightRoom.team_A.members);
         fightRoom.readyCount++;
 
         const teamAMemberIndex = fightRoom.team_A.members.findIndex(
@@ -517,7 +499,6 @@ export default class SocketGateway
           client
             .to(this.guildFightingRoom[fightRoomIndex].team_B.roomName)
             .emit('readyFight', this.guildFightingRoom[fightRoomIndex]);
-          console.log('readyFight', fightRoom);
         } else {
           console.log('[ERROR] - fightRoomIndex를 찾을 수 없음.');
         }
@@ -574,7 +555,6 @@ export default class SocketGateway
           client
             .to(this.guildFightingRoom[fightRoomIndex].team_B.roomName)
             .emit('cancelReady', this.guildFightingRoom[fightRoomIndex]);
-          console.log('cancelReady', fightRoom);
         } else {
           console.log('[ERROR] - fightRoomIndex를 찾을 수 없음.');
         }
@@ -644,7 +624,6 @@ export default class SocketGateway
     const guildWaitingList = Array.from(this.guildWaitingRoom).filter((room) =>
       room.roomName.startsWith(data.guildName + '-'),
     );
-    console.log('Waiting Room List : ', guildWaitingList);
     client.emit('roomList', guildWaitingList);
   }
 
@@ -661,13 +640,10 @@ export default class SocketGateway
       fightRoomName: string;
     },
   ) {
-    console.log('매칭방리스트', this.guildFightingRoom);
     const fightRoomIndex = this.guildFightingRoom.findIndex(
       (room) => room.fightRoomName === data.fightRoomName,
     );
     if (fightRoomIndex !== -1) {
-      console.log('변경전', this.guildFightingRoom[fightRoomIndex]);
-      //배열 비구조화 할당
       [
         this.guildFightingRoom[fightRoomIndex].team_A,
         this.guildFightingRoom[fightRoomIndex].team_B,
@@ -680,8 +656,6 @@ export default class SocketGateway
         (member) => (member.isLeader = false),
       );
       this.guildFightingRoom[fightRoomIndex].team_A.members[0].isLeader = true;
-
-      console.log('변경후', this.guildFightingRoom[fightRoomIndex]);
 
       client.emit('changeTeam', this.guildFightingRoom[fightRoomIndex]);
       // client
@@ -757,7 +731,6 @@ export default class SocketGateway
       //내가 돌리고있는 길드의 team_B로 들어간다.
       this.guildFightingRoom[emptyIndex].team_B = me;
       this.guildFightingRoom[emptyIndex].team_A.members[0].isLeader = true;
-      console.log('매칭완료 \n', this.guildFightingRoom);
       socket.emit('searchFight', this.guildFightingRoom[emptyIndex]);
       socket.join(this.guildFightingRoom[emptyIndex].fightRoomName);
       // socket
@@ -782,7 +755,6 @@ export default class SocketGateway
         status: '매칭중',
       };
       this.guildFightingRoom.push(fightRoom);
-      console.log('빈 방 생성 \n', this.guildFightingRoom);
       socket.join(fightRoom.fightRoomName);
       socket.emit('searchFight', fightRoom);
       socket.to(me.roomName).emit('searchFight', fightRoom);
