@@ -29,6 +29,9 @@ export class Member extends BaseEntity {
   @Column({ name: 'member_name' })
   memberName: string;
 
+  @Column({ name: 'member_icon' })
+  memberIcon: string;
+
   @ManyToOne(() => Guild, (guild) => guild.members, { onDelete: 'SET NULL' })
   @JoinColumn({ name: 'member_guild' })
   memberGuild: Guild;
