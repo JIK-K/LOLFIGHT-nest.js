@@ -10,6 +10,9 @@ import {
   Res,
   UseGuards,
   Delete,
+  UseInterceptors,
+  Bind,
+  UploadedFile,
 } from '@nestjs/common';
 import { MemberService } from './member.service';
 import { MemberDTO } from './DTOs/member.dto';
@@ -18,6 +21,8 @@ import { ResponseUtil } from 'src/utils/response.util';
 import { CommonUtil } from 'src/utils/common.util';
 import { Response } from 'express';
 import { AuthGuard } from '@nestjs/passport';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { multerConfig } from 'src/common/configs/multer.config';
 
 @Controller('member')
 export class MemberController {
@@ -106,6 +111,25 @@ export class MemberController {
     this.logger.log(`Update Member ${memberDTO.memberName}`);
     return ResponseUtil.makeSuccessResponse(
       await this.memberService.updateMember(memberDTO),
+    );
+  }
+
+  /**
+   * Member Icon 업데이트
+   * @param file
+   * @param memberDTO
+   * @returns
+   */
+  @Patch('/icon')
+  @UseInterceptors(FileInterceptor('memberIcon', multerConfig))
+  @Bind(UploadedFile())
+  async updateIcon(
+    file: Express.Multer.File,
+    @Body() memberDTO: MemberDTO,
+  ): Promise<ResponseDTO<MemberDTO>> {
+    this.logger.log(`Update Member Icon ${memberDTO.memberName}`);
+    return ResponseUtil.makeSuccessResponse(
+      await this.memberService.updateMemberIcon(memberDTO, file),
     );
   }
 

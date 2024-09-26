@@ -4,6 +4,8 @@
 #public
 public/
 
+.yarn
+
 # compiled output
 /dist
 /node_modules

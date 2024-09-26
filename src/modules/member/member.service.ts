@@ -10,6 +10,14 @@ import { CommonUtil } from 'src/utils/common.util';
 import { CODE_CONSTANT } from 'src/common/constants/common-code.constant';
 import { MemberGame } from './entities/member_game.entity';
 import { Guild } from '../guild/entities/guild.entity';
+import { join } from 'path';
+import {
+  createReadStream,
+  createWriteStream,
+  existsSync,
+  rmSync,
+  unlinkSync,
+} from 'fs';
 
 @Injectable()
 export class MemberService {
@@ -166,6 +174,42 @@ export class MemberService {
       }
     }
 
+    return this.memberMapper.toDTO(
+      await this.memberRepository.save(memberEntity),
+    );
+  }
+
+  async updateMemberIcon(
+    member: MemberDTO,
+    file?: Express.Multer.File,
+  ): Promise<MemberDTO> {
+    const memberEntity: Member = await this.memberRepository
+      .createQueryBuilder('member')
+      .where('member_id = :id', {
+        id: member.memberId,
+      })
+      .getOne();
+
+    let memberIconPath: string | undefined;
+
+    if (file) {
+      const fileName = `${member.memberName}.png`;
+      const filePath = join(__dirname, '../../..', 'public/member', fileName);
+      if (existsSync(filePath)) {
+        rmSync(filePath);
+      }
+
+      const readStream = createReadStream(file.path);
+      const writeStream = createWriteStream(filePath);
+
+      readStream.pipe(writeStream);
+      writeStream.on('finish', () => {
+        unlinkSync(file.path);
+        memberIconPath = `public/member/${fileName}`;
+      });
+    }
+
+    memberEntity.memberIcon = memberIconPath;
     return this.memberMapper.toDTO(
       await this.memberRepository.save(memberEntity),
     );
