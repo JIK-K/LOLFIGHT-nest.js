@@ -17,6 +17,9 @@ export class MemberDTO extends BaseDTO {
   memberName: string;
 
   @IsOptional()
+  memberIcon: string;
+
+  @IsOptional()
   memberGuild: Guild;
 
   @IsOptional()

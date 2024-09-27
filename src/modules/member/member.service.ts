@@ -179,6 +179,12 @@ export class MemberService {
     );
   }
 
+  /**
+   * Member Icon Change
+   * @param member
+   * @param file
+   * @returns
+   */
   async updateMemberIcon(
     member: MemberDTO,
     file?: Express.Multer.File,
@@ -205,8 +211,8 @@ export class MemberService {
       readStream.pipe(writeStream);
       writeStream.on('finish', () => {
         unlinkSync(file.path);
-        memberIconPath = `public/member/${fileName}`;
       });
+      memberIconPath = `public/member/${fileName}`;
     }
 
     memberEntity.memberIcon = memberIconPath;

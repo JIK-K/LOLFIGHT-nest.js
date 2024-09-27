@@ -75,8 +75,8 @@ export class PostController {
   }
 
   /**
-   * Post 최근 리스트 조회
-   * @param boardId
+   * Post 리스트 최근 5개 조회
+   * @param borad
    * @returns
    */
   @Get('/recentlist')
