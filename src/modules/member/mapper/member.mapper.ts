@@ -15,6 +15,7 @@ export class MemberMapper {
       memberId,
       memberPw,
       memberName,
+      memberIcon,
       memberGuild,
       memberGame,
       createdAt,
@@ -26,6 +27,7 @@ export class MemberMapper {
       .memberId(memberId)
       .memberPw(memberPw)
       .memberName(memberName)
+      .memberIcon(memberIcon)
       .memberGuild(memberGuild)
       .memberGame(memberGame)
       .createdAt(createdAt)

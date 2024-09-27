@@ -29,7 +29,7 @@ export class Member extends BaseEntity {
   @Column({ name: 'member_name' })
   memberName: string;
 
-  @Column({ name: 'member_icon' })
+  @Column({ name: 'member_icon', default: 'public/default.png' })
   memberIcon: string;
 
   @ManyToOne(() => Guild, (guild) => guild.members, { onDelete: 'SET NULL' })
