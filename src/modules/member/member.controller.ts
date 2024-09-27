@@ -65,6 +65,7 @@ export class MemberController {
    * @param id
    * @returns
    */
+  @UseGuards(AuthGuard('access'))
   @Get('/find')
   async find(@Query('id') id: string): Promise<ResponseDTO<MemberDTO>> {
     this.logger.log(`Find Member Id : ${id}`);

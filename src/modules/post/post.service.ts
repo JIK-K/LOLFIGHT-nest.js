@@ -139,6 +139,25 @@ export class PostService {
   }
 
   /**
+   * Post 리스트 조회
+   * @param board
+   * @returns {Promise<PostDTO[]>}
+   */
+  async getRecentPostList(boardId: number): Promise<PostDTO[]> {
+    const postEntities: Post[] = await this.postRepository
+      .createQueryBuilder('post')
+      .leftJoinAndSelect('post.member', 'member')
+      .leftJoinAndSelect('post.board', 'board')
+      .where('post.boardId = :id', { id: boardId })
+      .andWhere('post.deletedTrue = :deletedTrue', { deletedTrue: false })
+      .orderBy('post.createdAt', 'DESC')
+      .take(5)
+      .getMany();
+
+    return await this.postMapper.toDTOList(postEntities);
+  }
+
+  /**
    * Post 내용 조회
    * @param board, postId
    * @returns {Promise<PostDTO>}

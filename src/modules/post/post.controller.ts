@@ -75,6 +75,20 @@ export class PostController {
   }
 
   /**
+   * Post 최근 리스트 조회
+   * @param boardId
+   * @returns
+   */
+  @Get('/recentlist')
+  async getRecentPostList(
+    @Query('boardId') boardId: number,
+  ): Promise<ResponseDTO<PostDTO[]>> {
+    return ResponseUtil.makeSuccessResponse(
+      await this.postService.getRecentPostList(boardId),
+    );
+  }
+
+  /**
    * Post 내용 조회
    * @param board, postId
    * @returns
