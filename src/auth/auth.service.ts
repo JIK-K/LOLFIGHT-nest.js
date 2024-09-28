@@ -24,10 +24,15 @@ export class AuthService {
   setRefreshToken({ member, res }) {
     const refreshToken = this.jwtService.sign(
       { id: member.memberId },
-      { secret: process.env.REFRESH_TOKEN_SECRET_KEY, expiresIn: '2w' },
+      { secret: process.env.REFRESH_TOKEN_SECRET_KEY, expiresIn: '2w' }, // 2주 동안 유효한 refresh token
+    );
+    res.setHeader(
+      'Set-Cookie',
+      `refreshToken=${refreshToken}; HttpOnly; Path=/; Max-Age=${
+        14 * 24 * 60 * 60
+      }; SameSite=Strict;`,
     );
 
-    res.setHeader('Set-Cookie', `refreshToken=${refreshToken}`);
     return;
   }
 }

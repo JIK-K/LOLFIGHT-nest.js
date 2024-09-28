@@ -24,6 +24,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { multerConfig } from 'src/common/configs/multer.config';
 
+@UseGuards(AuthGuard('access'))
 @Controller('member')
 export class MemberController {
   constructor(private memberService: MemberService) {}
@@ -65,7 +66,6 @@ export class MemberController {
    * @param id
    * @returns
    */
-  @UseGuards(AuthGuard('access'))
   @Get('/find')
   async find(@Query('id') id: string): Promise<ResponseDTO<MemberDTO>> {
     this.logger.log(`Find Member Id : ${id}`);
@@ -173,26 +173,4 @@ export class MemberController {
       await this.memberService.deleteMemberGame(memberId),
     );
   }
-
-  // @UseGuards(AuthGuard('access'))
-  // @Get('/login')
-  // async loginMember(
-  //   @Query('id') id: string,
-  //   @Query('pw') pw: string,
-  //   @Res() res: Response
-  // ): Promise<void> {
-  //   this.logger.log(`Login Member ID:${id} PW:${pw}`);
-  //   const findMember = await this.memberService.loginMember(id, pw);
-  //   if (CommonUtil.isValid(findMember)) {
-  //     this.authService.setAccessToken({ member: findMember, res });
-  //     const token = this.authService.getAccessToken({ member: findMember });
-  //     res.status(HttpStatus.OK).send(token);
-  //   }
-  // }
-
-  // @UseGuards(AuthGuard('refresh'))
-  // @Post('refresh')
-  // async restoreAccessToken(@Req() req: Request & { member: MemberDTO }) {
-  //   return this.authService.getAccessToken({ member: req.member });
-  // }
 }

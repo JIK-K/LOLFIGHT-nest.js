@@ -144,7 +144,6 @@ export class PostService {
    * @returns
    */
   async getRecentPostList(board: number): Promise<PostDTO[]> {
-    console.log(board);
     const postEntites = await this.postRepository
       .createQueryBuilder('post')
       .leftJoinAndSelect('post.member', 'member')
