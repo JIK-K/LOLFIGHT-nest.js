@@ -32,6 +32,7 @@ export class AuthController {
     this.authService.setRefreshToken({ member, res });
 
     const jwt = this.authService.getAccessToken({ member });
+    console.log(jwt);
     return res.status(200).send(jwt);
   }
 
@@ -50,8 +51,8 @@ export class AuthController {
 
   @UseGuards(AuthGuard('refresh'))
   @Post('/refresh')
-  async refresh(@Res() res: Response) {
-    const member = res.locals.user;
+  async refresh(@Res() res: Response, @Body() body: any) {
+    const member = this.memberService.findMember(body.id);
 
     // 새로운 Access Token 발급
     const newAccessToken = this.authService.getAccessToken({ member });
