@@ -11,8 +11,15 @@ export class JwtAccessStrategy extends PassportStrategy(Strategy, 'access') {
 
   validate(payload) {
     console.log(payload);
-    return {
-      id: payload.id,
-    };
+    if (payload.admin) {
+      return {
+        id: payload.id,
+        admin: true,
+      };
+    } else {
+      return {
+        id: payload.id,
+      };
+    }
   }
 }

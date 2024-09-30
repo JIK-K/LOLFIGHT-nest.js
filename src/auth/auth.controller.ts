@@ -3,6 +3,7 @@ import {
   Controller,
   HttpException,
   HttpStatus,
+  Logger,
   Post,
   Res,
   UseGuards,
@@ -13,6 +14,9 @@ import { AuthService } from './auth.service';
 import { AuthDTO } from './DTOs/auth.dto';
 import { CODE_CONSTANT } from 'src/common/constants/common-code.constant';
 import { AuthGuard } from '@nestjs/passport';
+import { MemberDTO } from 'src/modules/member/DTOs/member.dto';
+import { ResponseDTO } from 'src/common/DTOs/response.dto';
+import { ResponseUtil } from 'src/utils/response.util';
 
 @Controller('auth')
 export class AuthController {
@@ -20,6 +24,20 @@ export class AuthController {
     private readonly memberService: MemberService,
     private readonly authService: AuthService,
   ) {}
+  private logger: Logger = new Logger();
+
+  /**
+   * Member 생성
+   * @param memberDTO
+   * @returns
+   */
+  @Post()
+  async create(@Body() memberDTO: MemberDTO): Promise<ResponseDTO<MemberDTO>> {
+    this.logger.log(`Create Member : ${memberDTO}`);
+    return ResponseUtil.makeSuccessResponse(
+      await this.memberService.createMember(memberDTO),
+    );
+  }
 
   @Post('/login')
   async login(@Body() authDTO: AuthDTO, @Res() res: Response) {
@@ -29,11 +47,17 @@ export class AuthController {
       throw new HttpException(CODE_CONSTANT.NO_DATA, HttpStatus.BAD_REQUEST);
     }
 
-    this.authService.setRefreshToken({ member, res });
+    if (member.memberId === process.env.ADMIN_ID) {
+      this.authService.setAdminRefreshToken({ member, res });
 
-    const jwt = this.authService.getAccessToken({ member });
-    console.log(jwt);
-    return res.status(200).send(jwt);
+      const jwt = this.authService.getAdminAccessToken({ member });
+      return res.status(200).send(jwt);
+    } else {
+      this.authService.setRefreshToken({ member, res });
+
+      const jwt = this.authService.getAccessToken({ member });
+      return res.status(200).send(jwt);
+    }
   }
 
   // 로그아웃 엔드포인트
@@ -52,11 +76,16 @@ export class AuthController {
   @UseGuards(AuthGuard('refresh'))
   @Post('/refresh')
   async refresh(@Res() res: Response, @Body() body: any) {
-    const member = this.memberService.findMember(body.id);
+    const member = await this.memberService.findMember(body.id);
 
-    // 새로운 Access Token 발급
-    const newAccessToken = this.authService.getAccessToken({ member });
+    if (member.memberId === process.env.ADMIN_ID) {
+      const newAdminToken = this.authService.getAdminAccessToken({ member });
+      return res.status(200).send({ accessToken: newAdminToken });
+    } else {
+      // 새로운 Access Token 발급
+      const newAccessToken = this.authService.getAccessToken({ member });
 
-    return res.status(200).send({ accessToken: newAccessToken });
+      return res.status(200).send({ accessToken: newAccessToken });
+    }
   }
 }

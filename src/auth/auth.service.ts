@@ -35,4 +35,38 @@ export class AuthService {
 
     return;
   }
+
+  //@todo 왜 나를 괴롭히는가
+  getAdminAccessToken({ member }): String {
+    return this.jwtService.sign(
+      {
+        id: member.memberId,
+        admin: true,
+      },
+      {
+        // secret: process.env.ACCESS_ADMIN_SECRET_KEY,
+        secret: process.env.ACCESS_TOKEN_SECRET_KEY,
+        expiresIn: '5m',
+      },
+    );
+  }
+
+  setAdminRefreshToken({ member, res }) {
+    const refreshToken = this.jwtService.sign(
+      { id: member.memberId, admin: true },
+      {
+        // secret: process.env.REFRESH_TOKEN_SECRET_KEY,
+        secret: process.env.REFRESH_TOKEN_SECRET_KEY,
+        expiresIn: '2w',
+      }, // 2주 동안 유효한 refresh token
+    );
+    res.setHeader(
+      'Set-Cookie',
+      `refreshToken=${refreshToken}; HttpOnly; Path=/; Max-Age=${
+        14 * 24 * 60 * 60
+      }; SameSite=Strict;`,
+    );
+
+    return;
+  }
 }
