@@ -155,7 +155,7 @@ export class PostService {
       .where('board_id = :id', { id: board })
       .andWhere('deletedTrue = :deletedTrue', { deletedTrue: false })
       .orderBy('post.createdAt', 'DESC')
-      .take(5)
+      .take(4)
       .getMany();
 
     return await this.postMapper.toDTOList(postEntites);
