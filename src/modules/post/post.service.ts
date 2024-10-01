@@ -118,6 +118,9 @@ export class PostService {
         .leftJoinAndSelect('post.member', 'member')
         .leftJoinAndSelect('post.board', 'board')
         .where('deletedTrue = :deletedTrue', { deletedTrue: false })
+        .andWhere('post.boardId NOT IN (:...excludedBoardIds)', {
+          excludedBoardIds: [3, 4],
+        })
         .getMany();
     } else {
       const getBoardData = await this.boardRepository
