@@ -12,6 +12,7 @@ import { CommentModule } from './modules/comment/comment.module';
 import { SocketModule } from './socket/socket.module';
 import { FileController } from './file/file.controller';
 import { BattleModule } from './modules/battle/battle.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { BattleModule } from './modules/battle/battle.module';
     CommentModule,
     SocketModule,
     BattleModule,
+    AuthModule,
   ],
   controllers: [AppController, FileController],
   providers: [AppService],

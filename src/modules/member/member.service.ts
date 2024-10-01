@@ -114,6 +114,7 @@ export class MemberService {
       .where('member_id = :id', {
         id: memberDTO.memberId,
       })
+      .leftJoinAndSelect('member.memberGame', 'member_game')
       .getOne();
 
     if (!CommonUtil.isValid(memberEntity)) {
@@ -133,43 +134,50 @@ export class MemberService {
       memberEntity.memberPw = hashedPassword;
       memberEntity.salt = salt;
     }
+
     if (CommonUtil.isValid(memberDTO.memberGame)) {
-      const existGameData: MemberGame = await this.memberGameRepository
-        .createQueryBuilder('member_game')
-        .where('game_name = :name', {
-          name: memberDTO.memberGame.gameName,
-        })
-        .getOne();
-
-      if (!existGameData) {
-        const memberGameEntity: MemberGame = Builder<MemberGame>()
-          .id(memberDTO.memberGame.id)
-          .gameName(memberDTO.memberGame.gameName)
-          .gameTier(memberDTO.memberGame.gameTier)
-          .summonerId(memberDTO.memberGame.summonerId)
-          .build();
-
-        await this.memberGameRepository.save(memberGameEntity);
-        memberEntity.memberGame = memberGameEntity;
-      } else {
-        const duplicateData: Member = await this.memberRepository
-          .createQueryBuilder('member')
-          .where('member_game = :gameId', {
-            gameId: existGameData.id,
+      const areGamesDifferent =
+        memberEntity.memberGame.gameName !== memberDTO.memberGame.gameName ||
+        memberEntity.memberGame.gameTier !== memberDTO.memberGame.gameTier ||
+        memberEntity.memberGame.summonerId !== memberDTO.memberGame.summonerId;
+      if (areGamesDifferent) {
+        const existGameData: MemberGame = await this.memberGameRepository
+          .createQueryBuilder('member_game')
+          .where('game_name = :name', {
+            name: memberDTO.memberGame.gameName,
           })
           .getOne();
 
-        if (!duplicateData) {
-          existGameData.gameName = memberDTO.memberGame.gameName;
-          existGameData.gameTier = memberDTO.memberGame.gameTier;
-          existGameData.summonerId = memberDTO.memberGame.summonerId;
-          await this.memberGameRepository.save(existGameData);
-          memberEntity.memberGame = existGameData;
+        if (!existGameData) {
+          const memberGameEntity: MemberGame = Builder<MemberGame>()
+            .id(memberDTO.memberGame.id)
+            .gameName(memberDTO.memberGame.gameName)
+            .gameTier(memberDTO.memberGame.gameTier)
+            .summonerId(memberDTO.memberGame.summonerId)
+            .build();
+
+          await this.memberGameRepository.save(memberGameEntity);
+          memberEntity.memberGame = memberGameEntity;
         } else {
-          throw new HttpException(
-            CODE_CONSTANT.EXIST_DATA,
-            HttpStatus.BAD_REQUEST,
-          );
+          const duplicateData: Member = await this.memberRepository
+            .createQueryBuilder('member')
+            .where('member_game = :gameId', {
+              gameId: existGameData.id,
+            })
+            .getOne();
+
+          if (!duplicateData) {
+            existGameData.gameName = memberDTO.memberGame.gameName;
+            existGameData.gameTier = memberDTO.memberGame.gameTier;
+            existGameData.summonerId = memberDTO.memberGame.summonerId;
+            await this.memberGameRepository.save(existGameData);
+            memberEntity.memberGame = existGameData;
+          } else {
+            throw new HttpException(
+              CODE_CONSTANT.EXIST_DATA,
+              HttpStatus.BAD_REQUEST,
+            );
+          }
         }
       }
     }
