@@ -88,4 +88,17 @@ export class AuthController {
       return res.status(200).send({ accessToken: newAccessToken });
     }
   }
+
+  @Post('/forgot-password')
+  async forgotPassword(@Body() body: { email: string }, @Res() res: Response) {
+    const member = await this.memberService.findMember(body.email);
+
+    if (!member) {
+      throw new HttpException(CODE_CONSTANT.NO_DATA, HttpStatus.NOT_FOUND);
+    }
+
+    const newAccessToken = this.authService.getAccessToken({ member });
+
+    return res.status(200).send({ accessToken: newAccessToken });
+  }
 }

@@ -14,8 +14,15 @@ export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'refresh') {
 
   validate(payload) {
     console.log(payload);
-    return {
-      id: payload.id,
-    };
+    if (payload.admin) {
+      return {
+        id: payload.id,
+        admin: true,
+      };
+    } else {
+      return {
+        id: payload.id,
+      };
+    }
   }
 }
