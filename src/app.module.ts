@@ -13,6 +13,7 @@ import { SocketModule } from './socket/socket.module';
 import { FileController } from './file/file.controller';
 import { BattleModule } from './modules/battle/battle.module';
 import { AuthModule } from './auth/auth.module';
+import { JudgmentModule } from './modules/judgment/judgment.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { AuthModule } from './auth/auth.module';
     SocketModule,
     BattleModule,
     AuthModule,
+    JudgmentModule,
   ],
   controllers: [AppController, FileController],
   providers: [AppService],
