@@ -64,4 +64,12 @@ export class JudgmentService {
       await this.judgmentRepository.save(judgmentEntity),
     );
   }
+
+  async getJudgmentList(): Promise<JudgmentDTO[]> {
+    const judgmentEntities = await this.judgmentRepository
+      .createQueryBuilder('judgment')
+      .getMany();
+
+    return await this.judgmentMapper.toDTOList(judgmentEntities);
+  }
 }

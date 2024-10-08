@@ -2,6 +2,7 @@ import {
   Bind,
   Body,
   Controller,
+  Get,
   Logger,
   Post,
   UploadedFile,
@@ -16,7 +17,6 @@ import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { videoConfig } from 'src/common/configs/multer.config';
 
-@UseGuards(AuthGuard('access'))
 @Controller('judgment')
 export class JudgmentController {
   constructor(private judgmentService: JudgmentService) {}
@@ -29,6 +29,7 @@ export class JudgmentController {
    * @param judgmentDTO
    * @returns
    */
+  @UseGuards(AuthGuard('access'))
   @Post()
   @UseInterceptors(FileInterceptor('judgmentVideo'))
   async create(
@@ -40,6 +41,17 @@ export class JudgmentController {
 
     return ResponseUtil.makeSuccessResponse(
       await this.judgmentService.createJudgment(judgmentDTO, file),
+    );
+  }
+
+  /**
+   * Judgment List
+   * @returns
+   */
+  @Get('/list')
+  async getJudgmentList(): Promise<ResponseDTO<JudgmentDTO[]>> {
+    return ResponseUtil.makeSuccessResponse(
+      await this.judgmentService.getJudgmentList(),
     );
   }
 }

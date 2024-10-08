@@ -13,6 +13,8 @@ export class JudgmentMapper {
       judgmentWriter,
       judgmentTitle,
       judgmentDesc,
+      judgmentLike,
+      judgmentView,
       judgmentLeftChampion,
       judgmentLeftTier,
       judgmentLeftName,
@@ -33,6 +35,8 @@ export class JudgmentMapper {
       .judgmentWriter(judgmentWriter)
       .judgmentTitle(judgmentTitle)
       .judgmentDesc(judgmentDesc)
+      .judgmentView(judgmentView)
+      .judgmentLike(judgmentLike)
       .judgmentLeftChampion(judgmentLeftChampion)
       .judgmentLeftTier(judgmentLeftTier)
       .judgmentLeftName(judgmentLeftName)

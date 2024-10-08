@@ -20,6 +20,12 @@ export class Judgment extends BaseEntity {
   @Column({ name: `judgment_desc` })
   judgmentDesc: string;
 
+  @Column({ name: `judgment_view`, default: 0 })
+  judgmentView: number;
+
+  @Column({ name: `judgment_like`, default: 0 })
+  judgmentLike: number;
+
   @Column({ name: `judgment_left_champion` })
   judgmentLeftChampion: string;
 
@@ -32,7 +38,7 @@ export class Judgment extends BaseEntity {
   @Column({ name: `judgment_left_line` })
   judgmentLeftLine: string;
 
-  @Column({ name: `judgment_left_like` })
+  @Column({ name: `judgment_left_like`, default: 0 })
   judgmentLeftLike: number;
 
   @Column({ name: `judgment_right_champion` })
@@ -47,7 +53,7 @@ export class Judgment extends BaseEntity {
   @Column({ name: `judgment_right_line` })
   judgmentRightLine: string;
 
-  @Column({ name: `judgment_right_like` })
+  @Column({ name: `judgment_right_like`, default: 0 })
   judgmentRightLike: number;
 
   @Column({ name: `judgment_video` })

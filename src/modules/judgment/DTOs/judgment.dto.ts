@@ -15,6 +15,12 @@ export class JudgmentDTO extends BaseDTO {
   judgmentDesc: string;
 
   @IsOptional()
+  judgmentView: number;
+
+  @IsOptional()
+  judgmentLike: number;
+
+  @IsOptional()
   judgmentLeftChampion: string;
   @IsOptional()
   judgmentLeftName: string;
