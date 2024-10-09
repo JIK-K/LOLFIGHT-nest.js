@@ -65,11 +65,26 @@ export class JudgmentService {
     );
   }
 
+  /**
+   * Judgment List
+   * @returns
+   */
   async getJudgmentList(): Promise<JudgmentDTO[]> {
     const judgmentEntities = await this.judgmentRepository
       .createQueryBuilder('judgment')
       .getMany();
 
     return await this.judgmentMapper.toDTOList(judgmentEntities);
+  }
+
+  async getJudgment(id: number): Promise<JudgmentDTO> {
+    const judgmentEntity = await this.judgmentRepository
+      .createQueryBuilder('judgment')
+      .where('id = :id', {
+        id: id,
+      })
+      .getOne();
+
+    return await this.judgmentMapper.toDTO(judgmentEntity);
   }
 }

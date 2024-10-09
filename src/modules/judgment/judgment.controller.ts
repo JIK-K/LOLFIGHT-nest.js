@@ -5,6 +5,7 @@ import {
   Get,
   Logger,
   Post,
+  Query,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -37,7 +38,6 @@ export class JudgmentController {
     @Body() judgmentDTO: JudgmentDTO,
   ): Promise<ResponseDTO<JudgmentDTO>> {
     this.logger.log(`Create judgment post: ${JSON.stringify(judgmentDTO)}`);
-    console.log(file);
 
     return ResponseUtil.makeSuccessResponse(
       await this.judgmentService.createJudgment(judgmentDTO, file),
@@ -52,6 +52,15 @@ export class JudgmentController {
   async getJudgmentList(): Promise<ResponseDTO<JudgmentDTO[]>> {
     return ResponseUtil.makeSuccessResponse(
       await this.judgmentService.getJudgmentList(),
+    );
+  }
+
+  @Get('/post')
+  async getJudgment(
+    @Query('id') id: number,
+  ): Promise<ResponseDTO<JudgmentDTO>> {
+    return ResponseUtil.makeSuccessResponse(
+      await this.judgmentService.getJudgment(id),
     );
   }
 }

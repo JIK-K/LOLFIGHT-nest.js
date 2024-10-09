@@ -3,7 +3,7 @@ import { BaseDTO } from 'src/base/base.dto';
 
 export class JudgmentDTO extends BaseDTO {
   @IsOptional()
-  id: string;
+  id: number;
 
   @IsOptional()
   judgmentWriter: string;

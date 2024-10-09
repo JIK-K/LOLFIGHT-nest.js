@@ -9,7 +9,7 @@ import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 })
 export class Judgment extends BaseEntity {
   @PrimaryGeneratedColumn()
-  id: string;
+  id: number;
 
   @Column({ name: 'judgment_writer' })
   judgmentWriter: string;
@@ -17,7 +17,7 @@ export class Judgment extends BaseEntity {
   @Column({ name: `judgment_title` })
   judgmentTitle: string;
 
-  @Column({ name: `judgment_desc` })
+  @Column({ name: `judgment_desc`, type: 'text' })
   judgmentDesc: string;
 
   @Column({ name: `judgment_view`, default: 0 })
