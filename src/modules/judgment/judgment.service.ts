@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Judgment } from './entities/judgment.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -7,6 +7,7 @@ import { Builder } from 'builder-pattern';
 import { JudgmentMapper } from './mapper/judgment.mapper';
 import { join } from 'path';
 import { createWriteStream, existsSync, rmSync } from 'fs';
+import { CODE_CONSTANT } from 'src/common/constants/common-code.constant';
 
 @Injectable()
 export class JudgmentService {
@@ -66,7 +67,7 @@ export class JudgmentService {
   }
 
   /**
-   * Judgment List
+   * Judgment 게시글 리스트 조회
    * @returns
    */
   async getJudgmentList(): Promise<JudgmentDTO[]> {
@@ -77,6 +78,11 @@ export class JudgmentService {
     return await this.judgmentMapper.toDTOList(judgmentEntities);
   }
 
+  /**
+   * Judgment 게시글 조회
+   * @param id
+   * @returns
+   */
   async getJudgment(id: number): Promise<JudgmentDTO> {
     const judgmentEntity = await this.judgmentRepository
       .createQueryBuilder('judgment')
@@ -86,5 +92,51 @@ export class JudgmentService {
       .getOne();
 
     return await this.judgmentMapper.toDTO(judgmentEntity);
+  }
+
+  /**
+   * judgment 조회수 증가
+   * @param judgment
+   * @returns
+   */
+  async increaseJudgmentView(judgment: JudgmentDTO): Promise<boolean> {
+    const judgmentEntity = await this.judgmentRepository
+      .createQueryBuilder('judgment')
+      .where('id = :id', {
+        id: judgment.id,
+      })
+      .getOne();
+    if (!judgmentEntity) {
+      throw new HttpException(CODE_CONSTANT.NO_DATA, HttpStatus.BAD_REQUEST);
+    }
+
+    judgmentEntity.judgmentView += 1;
+
+    await this.judgmentRepository.save(judgmentEntity);
+
+    return true;
+  }
+
+  async voteFaction(faction: string, judgmentId: number): Promise<boolean> {
+    const judgmentEntity = await this.judgmentRepository
+      .createQueryBuilder('judgment')
+      .where(`id = :id`, {
+        id: judgmentId,
+      })
+      .getOne();
+
+    if (!judgmentEntity) {
+      throw new HttpException(CODE_CONSTANT.NO_DATA, HttpStatus.BAD_REQUEST);
+    }
+
+    if (faction === 'left') {
+      judgmentEntity.judgmentLeftLike += 1;
+    } else {
+      judgmentEntity.judgmentRightLike += 1;
+    }
+
+    await this.judgmentRepository.save(judgmentEntity);
+
+    return true;
   }
 }
