@@ -112,7 +112,6 @@ export class PostService {
   async getPostList(board: string): Promise<PostDTO[]> {
     let postEntites: Post[];
     if (board == '전체') {
-      //@todo 공지사항, 이벤트 제외
       postEntites = await this.postRepository
         .createQueryBuilder('post')
         .leftJoinAndSelect('post.member', 'member')
@@ -248,7 +247,8 @@ export class PostService {
 
   /**
    * Post 추천 여부 조회
-   * @param postDTO, memberId
+   * @param postDTO
+   * @param memberId
    * @returns
    */
   async getPostLike(postDTO: PostDTO, memberId: string): Promise<boolean> {

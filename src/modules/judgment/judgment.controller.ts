@@ -85,13 +85,34 @@ export class JudgmentController {
     );
   }
 
+  /**
+   * Judgment 투표
+   * @param data
+   * @returns
+   */
+  @UseGuards(AuthGuard('access'))
   @Patch(`/vote`)
   async voteFaction(
-    @Body() data: { faction: string; judgmentId: number },
+    @Body() data: { faction: string; judgmentId: number; memberId: string },
   ): Promise<ResponseDTO<boolean>> {
-    const { faction, judgmentId } = data;
+    const { faction, judgmentId, memberId } = data;
     return ResponseUtil.makeSuccessResponse(
-      await this.judgmentService.voteFaction(faction, judgmentId),
+      await this.judgmentService.voteFaction(faction, judgmentId, memberId),
+    );
+  }
+
+  /**
+   * Judgment 투표 여부 조회
+   * @param data
+   * @returns
+   */
+  @Post('/getvote')
+  async getVoteFaction(
+    @Body() data: { judgmentId: number; memberId: string },
+  ): Promise<ResponseDTO<string>> {
+    const { judgmentId, memberId } = data;
+    return ResponseUtil.makeSuccessResponse(
+      await this.judgmentService.getVoteFaction(judgmentId, memberId),
     );
   }
 }

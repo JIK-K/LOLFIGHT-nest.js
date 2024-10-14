@@ -23,9 +23,6 @@ export class Judgment extends BaseEntity {
   @Column({ name: `judgment_view`, default: 0 })
   judgmentView: number;
 
-  @Column({ name: `judgment_like`, default: 0 })
-  judgmentLike: number;
-
   @Column({ name: `judgment_left_champion` })
   judgmentLeftChampion: string;
 

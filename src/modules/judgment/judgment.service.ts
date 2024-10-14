@@ -6,8 +6,11 @@ import { JudgmentDTO } from './DTOs/judgment.dto';
 import { Builder } from 'builder-pattern';
 import { JudgmentMapper } from './mapper/judgment.mapper';
 import { join } from 'path';
-import { createWriteStream, existsSync, rmSync } from 'fs';
+import { createWriteStream, existsSync, mkdirSync, rmSync } from 'fs';
 import { CODE_CONSTANT } from 'src/common/constants/common-code.constant';
+import { JudgmentVote } from './entities/judgment_vote.entity';
+import { JudgmentVoteMapper } from './mapper/judgment_vote.mapper';
+import { Member } from '../member/entities/member.entity';
 
 @Injectable()
 export class JudgmentService {
@@ -15,6 +18,11 @@ export class JudgmentService {
     @InjectRepository(Judgment)
     private judgmentRepository: Repository<Judgment>,
     private judgmentMapper: JudgmentMapper,
+    @InjectRepository(JudgmentVote)
+    private judgmentVoteRepository: Repository<JudgmentVote>,
+    private judgmentVoteMapper: JudgmentVoteMapper,
+    @InjectRepository(Member)
+    private memberRepository: Repository<Member>,
   ) {}
 
   /**
@@ -30,7 +38,8 @@ export class JudgmentService {
 
     if (file) {
       const fileName = `${judgmentDTO.judgmentTitle}_${judgmentDTO.judgmentWriter}.mp4`;
-      const filePath = join(__dirname, '../../..', 'public/judgment', fileName);
+      const dirPath = join(__dirname, '../../..', 'public/judgment');
+      const filePath = join(dirPath, fileName);
 
       if (existsSync(filePath)) {
         rmSync(filePath);
@@ -117,7 +126,17 @@ export class JudgmentService {
     return true;
   }
 
-  async voteFaction(faction: string, judgmentId: number): Promise<boolean> {
+  /**
+   * Judgment 투표
+   * @param faction
+   * @param judgmentId
+   * @returns
+   */
+  async voteFaction(
+    faction: string,
+    judgmentId: number,
+    memberId: string,
+  ): Promise<boolean> {
     const judgmentEntity = await this.judgmentRepository
       .createQueryBuilder('judgment')
       .where(`id = :id`, {
@@ -129,14 +148,65 @@ export class JudgmentService {
       throw new HttpException(CODE_CONSTANT.NO_DATA, HttpStatus.BAD_REQUEST);
     }
 
-    if (faction === 'left') {
-      judgmentEntity.judgmentLeftLike += 1;
+    const judgmentVoteEntity = await this.judgmentVoteRepository
+      .createQueryBuilder('judgment_vote')
+      .where('judgmentId = :judgmentId', { judgmentId: judgmentId })
+      .andWhere('memberId = :memberId', { memberId: memberId })
+      .getOne();
+
+    if (judgmentVoteEntity) {
+      if (faction === 'left') {
+        judgmentEntity.judgmentLeftLike -= 1;
+      } else {
+        judgmentEntity.judgmentRightLike -= 1;
+      }
+
+      await this.judgmentVoteRepository.remove(judgmentVoteEntity);
+      await this.judgmentRepository.save(judgmentEntity);
     } else {
-      judgmentEntity.judgmentRightLike += 1;
+      if (faction === 'left') {
+        judgmentEntity.judgmentLeftLike += 1;
+      } else {
+        judgmentEntity.judgmentRightLike += 1;
+      }
+
+      const memberEntity = await this.memberRepository.findOne({
+        where: { id: memberId },
+      });
+      if (!memberEntity) {
+        throw new HttpException(CODE_CONSTANT.NO_DATA, HttpStatus.BAD_REQUEST);
+      }
+
+      const judgmentVoteEntity: JudgmentVote = Builder<JudgmentVote>()
+        .judgment(judgmentEntity)
+        .member(memberEntity)
+        .voteSide(faction)
+        .build();
+
+      await this.judgmentVoteRepository.save(judgmentVoteEntity);
+      await this.judgmentRepository.save(judgmentEntity);
+
+      return true;
+    }
+  }
+
+  /**
+   * Judgment 투표 여부 조회
+   * @param judgmentId
+   * @param memberId
+   * @returns
+   */
+  async getVoteFaction(judgmentId: number, memberId: string): Promise<string> {
+    const judgmentVoteEntity = await this.judgmentVoteRepository
+      .createQueryBuilder('judgment_vote')
+      .where('judgmentId = :judgmentId', { judgmentId: judgmentId })
+      .andWhere('memberId = :memberId', { memberId: memberId })
+      .getOne();
+
+    if (!judgmentVoteEntity) {
+      return 'none';
     }
 
-    await this.judgmentRepository.save(judgmentEntity);
-
-    return true;
+    return judgmentVoteEntity.voteSide === 'left' ? 'left' : 'right';
   }
 }
