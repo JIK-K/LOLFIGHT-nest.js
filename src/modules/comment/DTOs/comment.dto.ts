@@ -1,5 +1,6 @@
 import { IsOptional } from 'class-validator';
 import { BaseDTO } from 'src/base/base.dto';
+import { Member } from 'src/modules/member/entities/member.entity';
 import { PostDTO } from 'src/modules/post/DTOs/post.dto';
 
 export class CommentDTO extends BaseDTO {
@@ -37,7 +38,7 @@ export class CommentDTO extends BaseDTO {
   post: PostDTO;
 
   @IsOptional()
-  writer: string;
+  writer: Member;
 
   @IsOptional()
   memberId: string;

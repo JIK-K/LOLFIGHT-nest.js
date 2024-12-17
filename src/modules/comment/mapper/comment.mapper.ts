@@ -35,7 +35,7 @@ export class CommentMapper {
       .postId(postId)
       .postBoardId(postBoardId)
       .commentDate(commentDate)
-      .writer(member?.memberName)
+      .writer(member)
       .build();
   }
 
